@@ -10,7 +10,12 @@
   extern int yylineno;
   void yyerror (const char *);
   /* std::string slice_str(""); */
-  /* int slice_left, slice_right; */
+  int slice_left = 0 , slice_right = 0;
+  int org_str_len = 0;
+  /* c++ 中包含已定义的最大值INT_MAX */
+  /* const int MAX_INT= Integer.MAX_VALUE; */  
+  /* const unsigned int MAX_INT= -1; */  
+  /* int max_integer = MAX_INT; */
   
   PoolOfNodes& pool = PoolOfNodes::getInstance();
 %}
@@ -281,10 +286,10 @@ augassign // Used in: expr_stmt
 print_stmt // Used in: small_stmt
     : PRINT opt_test    
     { $$ = $2;
-      std::cerr << "type of $1 is  " << typeid($2).name() << std::endl;
-      std::cerr << "type of $1 is  " << typeid($2->eval()).name() << std::endl;
-      std::cerr << "value of $1 is  " << $2<< std::endl;
-      std::cerr << "value of $1 is  " << $2->eval()<< std::endl;
+      /* std::cerr << "type of $1 is  " << typeid($2).name() << std::endl; */
+      /* std::cerr << "type of $1 is  " << typeid($2->eval()).name() << std::endl; */
+      /* std::cerr << "value of $1 is  " << $2<< std::endl; */
+      /* std::cerr << "value of $1 is  " << $2->eval()<< std::endl; */
       /* std::cerr << "In print_stmt value of $2 is  " << static_cast<const StringLiteral*>($2->eval())->get_val()<< std::endl; */
       $2->eval()->print();
     }
@@ -697,24 +702,37 @@ power // Used in: factor
     | atom star_trailer     
     { if ($2) {
         /* std::cerr << "the 2nd time " << slice_str <<std::endl; */
-        //here $1 is IndentNode,$1->eval() is const Literal *.
-        std::string orginal_str = static_cast<const StringLiteral*>($1->eval())->get_val();
-        std::cerr << "original string is " << orginal_str <<std::endl;
-        std::string s(""), t("");
-      /* for (unsigned int i = 1; i <s.size()-1; ++i) { */
-      /*   t = t + s[i]; */
-      /* } */
-        int slice_left = static_cast<IntLiteral*>$2->get_val();
-        t = orginal_str[slice_left];
+        /* here $1 is IndentNode,$1->eval() is const Literal *. */
+        std::string original_str = static_cast<const StringLiteral*>($1->eval())->get_val();
+        org_str_len = original_str.length();
+        
+        if (INT_MAX == slice_right) {
+          slice_right = org_str_len;
+        }
+
+        std::string t("");
+        if (0 == slice_right) {
+          t = original_str[slice_left];
+        } else {
+          int sub_str_len = slice_right - slice_left;
+          t = original_str.substr(slice_left, sub_str_len);
+        }
+        std::cerr << "original_str length is " << org_str_len <<std::endl;
+        /* std::cerr << "original string is " << orginal_str <<std::endl; */
+        /* for (unsigned int i = 1; i <s.size()-1; ++i) { */
+        /*   t = t + s[i]; */
+        /* } */
+        /* int slice_left = static_cast<IntLiteral*>$2->get_val(); */
+        std::cerr << "slice_left  in power is " << slice_left <<std::endl;
         /* std::cerr <<"t value is " << t <<std::endl; */
         /* $$ = new StringNode(t); */
         $$ = new StringLiteral(t);
         pool.add($$);
-        delete[] $1;
-        delete[] $2;
+        /* delete[] $1; */
+        /* delete[] $2; */
         /* std::cerr << "atom star_trailer $1  " << static_cast<const StringLiteral*>($1->eval())->get_val() <<std::endl; */
         /* std::cerr << "the 2nd time " << slice_str[$] <<std::endl; */
-        //std::cerr << "atom star_trailer $1" << $1->eval()->val <<std::endl;
+        /* std::cerr << "atom star_trailer $1" << $1->eval()->val <<std::endl; */
         /* std::cerr << "atom star_trailer $1  " << static_cast<StringNode*>($1) <<std::endl; */
         /* std::cerr << "atom star_trailer $1  " << static_cast<StringLiteral*>($1) <<std::endl; */
         /* std::cerr << "atom star_trailer $1  " << static_cast<StringNode*>($1)->eval() <<std::endl; */
@@ -729,11 +747,11 @@ power // Used in: factor
         /* std::cerr << "atom star_trailer $1  " << static_cast<StringLiteral*>$1->get_val() <<std::endl; */
         /* std::cerr << "atom star_trailer $1  " << dynamic_cast<StringNode*>($1)->get_str_() <<std::endl; */
         /* std::cerr << "atom star_trailer $2  " << $2 <<std::endl; */
-        //std::cerr << "atom star_trailer " << *$1 <<std::endl;
+        /* std::cerr << "atom star_trailer " << *$1 <<std::endl; */
         /* std::cerr << "type of $1 is  " << typeid($1).name() << std::endl; */
-        std::cerr << "type of $2 is  " << typeid($2).name() << std::endl;
-          std::cerr << "subscript $2 is " << $2 <<std::endl;
-          std::cerr << "subscript $2 is " << static_cast<IntLiteral*>$2->get_val() <<std::endl;
+        /* std::cerr << "type of $2 is  " << typeid($2).name() << std::endl; */
+        /* std::cerr << "subscript $2 is " << $2 <<std::endl; */
+        /* std::cerr << "subscript $2 is " << static_cast<IntLiteral*>$2->get_val() <<std::endl; */
       } else {
         // std::cerr << $1 << std::endl;
         $$ = $1;
@@ -871,24 +889,29 @@ subscript // Used in: subscriptlist, star_COMMA_subscript
     : DOT DOT DOT
     { $$ = 0; }
     | test
-    { $$ = $1; }
+    {
+      slice_left = static_cast<IntLiteral*>$1->get_val();
+      /* std::cerr << "slice_left in subscript|test  is " << slice_left <<std::endl; */
+      $$ = $1;
+    }
     | opt_test_only COLON opt_test_only opt_sliceop
     { 
-      if ($2) {
-        //int slice_array[2];
-        $$ = $3;
+      if ($1) {
+        slice_left = static_cast<IntLiteral*>$1->get_val();
       } else {
-        if ($1) {
-          $$ = $1;
-          /* std::cerr << "subscript $1 is " << $1 <<std::endl; */
-          /* std::cerr << "subscript $1 is " << static_cast<IntLiteral*>$1->get_val() <<std::endl; */
-          /* slice_left = */ 
-        } else if ($3) {
-          $$ = $3;
-          /* std::cerr << "subscript $3 is " << $3 <<std::endl; */
-          /* std::cerr << "subscript $3 is " << static_cast<IntLiteral*>$3->get_val() <<std::endl; */
-        }
+        slice_left = 0;
       }
+
+      if ($3) {
+        slice_right = static_cast<IntLiteral*>$3->get_val();
+      } else {
+        slice_right = INT_MAX;
+      }
+
+      std::cerr << "In subscript MAX_INT is " << INT_MAX <<std::endl;
+      std::cerr << "In subscript original_str length is " << org_str_len <<std::endl;
+      std::cerr << "slice_left in subscript  is " << slice_left <<std::endl;
+      std::cerr << "slice_right in subscript  is " << slice_right <<std::endl;
       std::cerr << "there" << std::endl;
     }
     ;
