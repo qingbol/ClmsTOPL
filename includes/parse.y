@@ -4,6 +4,7 @@
   #include <iostream>
   #include <string>
   #include <typeinfo>
+  #include <climits>
 
   int yylex (void);
   extern char *yytext;
@@ -669,6 +670,10 @@ factor // Used in: term, factor, power
             break;
           }
           case '-': {
+            /* Get the minus value used for string slicing. */
+            slice_left = static_cast<IntLiteral*>$2->get_val();
+            slice_left = -slice_left;
+            /* std::cerr << "minus slice_left is " << slice_left <<std::endl; */
             $$ = new UnaryNode($2);
             pool.add($$);
             //($$)->eval();
@@ -711,11 +716,24 @@ power // Used in: factor
         }
 
         std::string t("");
+        int sub_str_len;
+        int slice_minus;
         if (0 == slice_right) {
-          t = original_str[slice_left];
+          if (-org_str_len <= slice_left && slice_left<=-1) {
+            slice_minus = slice_left + org_str_len;
+            t = original_str[slice_minus];
+          } else if (0 <= slice_left && slice_left<=(org_str_len-1)) {
+            t = original_str[slice_left];
+          } else {
+            throw std::string("IndexError: string index out of range");
+          }
         } else {
-          int sub_str_len = slice_right - slice_left;
-          t = original_str.substr(slice_left, sub_str_len);
+          if (slice_left < 0) {
+            t = "";
+          } else {
+            sub_str_len = slice_right - slice_left;
+            t = original_str.substr(slice_left, sub_str_len);
+          }
         }
         std::cerr << "original_str length is " << org_str_len <<std::endl;
         /* std::cerr << "original string is " << orginal_str <<std::endl; */
@@ -782,6 +800,9 @@ atom // Used in: power
     | INT_NUM   
     { 
       // std::cerr << $1 << std::endl; 
+      slice_left = $1;
+      /* slice_left = static_cast<IntLiteral*>$1->get_val(); */
+      std::cerr << "slice_left in subscript|test  is " << slice_left <<std::endl;
       $$ = new IntLiteral($1);
       pool.add($$);
     }
@@ -890,8 +911,6 @@ subscript // Used in: subscriptlist, star_COMMA_subscript
     { $$ = 0; }
     | test
     {
-      slice_left = static_cast<IntLiteral*>$1->get_val();
-      /* std::cerr << "slice_left in subscript|test  is " << slice_left <<std::endl; */
       $$ = $1;
     }
     | opt_test_only COLON opt_test_only opt_sliceop
