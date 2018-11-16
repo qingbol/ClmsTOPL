@@ -1,39 +1,40 @@
 #include "node.h"
 #include "poolOfNodes.h"
 #include <cmath>
+#include <iomanip>
 
 class Literal : public Node {
 public:
   virtual ~Literal() {}
 
   virtual const Literal* operator+(const Literal& rhs) const =0;
-  virtual const Literal* opPlus(float) const =0;
+  virtual const Literal* opPlus(double) const =0;
   virtual const Literal* opPlus(int) const =0;
   virtual const Literal* opPlus(const std::string&) const =0;
 
   virtual const Literal* operator*(const Literal& rhs) const =0;
-  virtual const Literal* opMult(float) const =0;
+  virtual const Literal* opMult(double) const =0;
   virtual const Literal* opMult(int) const =0;
   virtual const Literal* opMult(const std::string&) const =0;
 
   virtual const Literal* operator-(const Literal& rhs) const =0;
-  virtual const Literal* opSubt(float) const =0;
+  virtual const Literal* opSubt(double) const =0;
   virtual const Literal* opSubt(int) const =0;
 
   virtual const Literal* operator/(const Literal& rhs) const =0;
-  virtual const Literal* opDiv(float) const =0;
+  virtual const Literal* opDiv(double) const =0;
   virtual const Literal* opDiv(int) const =0;
 
   virtual const Literal* operator%(const Literal& rhs) const =0;
-  virtual const Literal* opPct(float) const =0;
+  virtual const Literal* opPct(double) const =0;
   virtual const Literal* opPct(int) const =0;
 
   virtual const Literal* operator^(const Literal& rhs) const =0;
-  virtual const Literal* opDbStar(float) const =0;
+  virtual const Literal* opDbStar(double) const =0;
   virtual const Literal* opDbStar(int) const =0;
 
   virtual const Literal* DbSlash(const Literal& rhs) const =0;
-  virtual const Literal* opDbSlash(float) const =0;
+  virtual const Literal* opDbSlash(double) const =0;
   virtual const Literal* opDbSlash(int) const =0;
 
   //Unary operator
@@ -52,12 +53,12 @@ public:
 //=============FloatLiteral=============================
 class FloatLiteral: public Literal {
 public:
-  FloatLiteral(float _val): val(_val) {}
+  FloatLiteral(double _val): val(_val) {}
 
   virtual const Literal* operator+(const Literal& rhs) const  {
     return rhs.opPlus(val);
   }
-  virtual const Literal* opPlus(float lhs) const  {
+  virtual const Literal* opPlus(double lhs) const  {
     const Literal* node = new FloatLiteral(lhs + val);
     PoolOfNodes::getInstance().add(node);
     return node; 
@@ -74,7 +75,7 @@ public:
   virtual const Literal* operator-(const Literal& rhs) const  {
     return rhs.opSubt(val);
   }
-  virtual const Literal* opSubt(float lhs) const  {
+  virtual const Literal* opSubt(double lhs) const  {
     const Literal* node = new FloatLiteral(lhs - val);
     PoolOfNodes::getInstance().add(node);
     return node;
@@ -88,13 +89,13 @@ public:
   virtual const Literal* operator*(const Literal& rhs) const  {
     return rhs.opMult(val);
   }
-  virtual const Literal* opMult(float lhs) const  {
+  virtual const Literal* opMult(double lhs) const  {
     const Literal* node = new FloatLiteral(lhs * val);
     PoolOfNodes::getInstance().add(node);
     return node;
   }
   virtual const Literal* opMult(int lhs) const  {
-    const Literal* node = new FloatLiteral(static_cast<float>(lhs) * val);
+    const Literal* node = new FloatLiteral(static_cast<double>(lhs) * val);
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -105,7 +106,7 @@ public:
   virtual const Literal* operator/(const Literal& rhs) const  {
     return rhs.opDiv(val);
   }
-  virtual const Literal* opDiv(float lhs) const  {
+  virtual const Literal* opDiv(double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
     const Literal* node = new FloatLiteral(lhs / val);
     PoolOfNodes::getInstance().add(node);
@@ -121,7 +122,7 @@ public:
   virtual const Literal* operator%(const Literal& rhs) const  {
     return rhs.opPct(val);
   }
-  virtual const Literal* opPct(float lhs) const  {
+  virtual const Literal* opPct(double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
     const Literal* node = new FloatLiteral(fmod(fmod(lhs,val)+val,val));
     PoolOfNodes::getInstance().add(node);
@@ -137,13 +138,13 @@ public:
   virtual const Literal* operator^(const Literal& rhs) const  {
     return rhs.opDbStar(val);
   }
-  virtual const Literal* opDbStar(float lhs) const  {
+  virtual const Literal* opDbStar(double lhs) const  {
     const Literal* node = new FloatLiteral(pow(lhs,val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
   virtual const Literal* opDbStar(int lhs) const  {
-    const Literal* node = new FloatLiteral(pow(static_cast<float>(lhs), val));
+    const Literal* node = new FloatLiteral(pow(static_cast<double>(lhs), val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -151,7 +152,7 @@ public:
   virtual const Literal* DbSlash(const Literal& rhs) const  {
     return rhs.opDbSlash(val);
   }
-  virtual const Literal* opDbSlash(float lhs) const  {
+  virtual const Literal* opDbSlash(double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
     const Literal* node = new FloatLiteral(floor(lhs / val));
     PoolOfNodes::getInstance().add(node);
@@ -174,10 +175,15 @@ public:
 
   virtual const Literal* eval() const { return this; }
   virtual void print() const { 
-    std::cout << "FLOAT: " << val << std::endl; 
+    if(fmod(val,1) == 0){
+      std::cout << "FLOAT: " << std::setprecision(17) << val << ".0" << std::endl;
+    }
+    else{
+      std::cout << "FLOAT: " << std::setprecision(17) << val << std::endl;
+    }
   }
 private:
-  float val;
+  double val;
 };
 
 
@@ -190,7 +196,7 @@ public:
   virtual const Literal* operator+(const Literal& rhs) const  {
     return rhs.opPlus(val);
   }
-  virtual const Literal* opPlus(float ) const  {
+  virtual const Literal* opPlus(double ) const  {
     throw std::string("string can't plus float");
   }
   virtual const Literal* opPlus(int ) const  {
@@ -206,18 +212,18 @@ public:
     throw std::string("string can't substract float");
     //return rhs.opSubt(val);
   }
-  virtual const Literal* opSubt(float ) const  {
-    throw std::string("string can't substract float");
+  virtual const Literal* opSubt(double ) const  {
+    throw std::string("string can't substract double");
   }
   virtual const Literal* opSubt(int ) const  {
     throw std::string("string can't substract int");
   }
 
   virtual const Literal* operator*(const Literal& rhs) const  {
-    //throw std::string("string can't substract float");
+    //throw std::string("string can't substract double");
     return rhs.opMult(val);
   }
-  virtual const Literal* opMult(float ) const  {
+  virtual const Literal* opMult(double ) const  {
     throw std::string("string can't multiply float");
   }
   virtual const Literal* opMult(int lhs) const  {
@@ -238,7 +244,7 @@ public:
     throw std::string("string can't substract float");
     //return rhs.opDiv(val);
   }
-  virtual const Literal* opDiv(float ) const  {
+  virtual const Literal* opDiv(double ) const  {
     throw std::string("string can't multiply int");
   }
   virtual const Literal* opDiv(int ) const  {
@@ -249,7 +255,7 @@ public:
     throw std::string("string can't substract float");
     //return rhs.opPct(val);
   }
-  virtual const Literal* opPct(float ) const  {
+  virtual const Literal* opPct(double ) const  {
     throw std::string("string can't multiply int");
   }
   virtual const Literal* opPct(int ) const  {
@@ -260,7 +266,7 @@ public:
     throw std::string("string can't substract float");
     //return rhs.opDbStar(val);
   }
-  virtual const Literal* opDbStar(float ) const  {
+  virtual const Literal* opDbStar(double ) const  {
     throw std::string("string can't multiply int"); }
   virtual const Literal* opDbStar(int ) const  {
     throw std::string("string can't multiply int");
@@ -270,7 +276,7 @@ public:
     throw std::string("string can't substract float");
     //return rhs.opDbSlash(val);
   }
-  virtual const Literal* opDbSlash(float ) const  {
+  virtual const Literal* opDbSlash(double ) const  {
     throw std::string("string can't multiply int");
   }
   virtual const Literal* opDbSlash(int ) const  {
@@ -300,8 +306,8 @@ public:
   virtual const Literal* operator+(const Literal& rhs) const  {
     return rhs.opPlus(val);
   }
-  virtual const Literal* opPlus(float lhs) const  {
-    const Literal* node = new FloatLiteral(static_cast<float>(val) + lhs);
+  virtual const Literal* opPlus(double lhs) const  {
+    const Literal* node = new FloatLiteral(static_cast<double>(val) + lhs);
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -317,7 +323,7 @@ public:
   virtual const Literal* operator-(const Literal& rhs) const  {
     return rhs.opSubt(val);
   }
-  virtual const Literal* opSubt(float lhs) const  {
+  virtual const Literal* opSubt(double lhs) const  {
     const Literal* node = new FloatLiteral(lhs - val);
     PoolOfNodes::getInstance().add(node);
     return node;
@@ -331,7 +337,7 @@ public:
   virtual const Literal* operator*(const Literal& rhs) const  {
     return rhs.opMult(val);
   }
-  virtual const Literal* opMult(float lhs) const  {
+  virtual const Literal* opMult(double lhs) const  {
     const Literal* node = new FloatLiteral(lhs * val);
     PoolOfNodes::getInstance().add(node);
     return node;
@@ -357,7 +363,7 @@ public:
   virtual const Literal* operator/(const Literal& rhs) const  {
     return rhs.opDiv(val);
   }
-  virtual const Literal* opDiv(float lhs) const  {
+  virtual const Literal* opDiv(double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
     const Literal* node = new FloatLiteral(lhs / val);
     PoolOfNodes::getInstance().add(node);
@@ -366,8 +372,8 @@ public:
   }
   virtual const Literal* opDiv(int lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
-    const Literal* node = new IntLiteral(floor(static_cast<float>(lhs)/ val));
-    //std::cout<<"lhs is  "<<lhs<<"VAL is "<<val<<" floor is "<<floor((float)lhs/val)<<std::endl;
+    const Literal* node = new IntLiteral(floor(static_cast<double>(lhs)/ val));
+    //std::cout<<"lhs is  "<<lhs<<"VAL is "<<val<<" floor is "<<floor((double)lhs/val)<<std::endl;
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -375,7 +381,7 @@ public:
   virtual const Literal* operator%(const Literal& rhs) const  {
     return rhs.opPct(val);
   }
-  virtual const Literal* opPct(float lhs) const  {
+  virtual const Literal* opPct(double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
     const Literal* node = new FloatLiteral(fmod(fmod(lhs,val)+val,val));
     PoolOfNodes::getInstance().add(node);
@@ -391,15 +397,15 @@ public:
   virtual const Literal* operator^(const Literal& rhs) const  {
     return rhs.opDbStar(val);
   }
-  virtual const Literal* opDbStar(float lhs) const  {
-    const Literal* node = new FloatLiteral(pow(static_cast<float>(lhs), val));
+  virtual const Literal* opDbStar(double lhs) const  {
+    const Literal* node = new FloatLiteral(pow(static_cast<double>(lhs), val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }
   virtual const Literal* opDbStar(int lhs) const  {
     const Literal* node;
     if (val < 0) {
-      node = new FloatLiteral(pow(static_cast<float>(lhs), val));
+      node = new FloatLiteral(pow(static_cast<double>(lhs), val));
      // std::cerr << "val <0 is " << val << "lhs is " << lhs << std::endl;
     } else {
       node = new IntLiteral(pow(lhs, val));
@@ -412,7 +418,7 @@ public:
   virtual const Literal* DbSlash(const Literal& rhs) const  {
     return rhs.opDbSlash(val);
   }
-  virtual const Literal* opDbSlash(float lhs) const  {
+  virtual const Literal* opDbSlash(double lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
     const Literal* node = new FloatLiteral(floor(lhs / val));
     PoolOfNodes::getInstance().add(node);
@@ -421,7 +427,7 @@ public:
   }
   virtual const Literal* opDbSlash(int lhs) const  {
     if ( val == 0 ) throw std::string("Zero Division Error");
-    const Literal* node = new IntLiteral(floor(static_cast<float>(lhs)/ val));
+    const Literal* node = new IntLiteral(floor(static_cast<double>(lhs)/ val));
     PoolOfNodes::getInstance().add(node);
     return node;
   }

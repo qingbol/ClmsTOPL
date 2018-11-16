@@ -1,10 +1,11 @@
 CCC = g++
 LEX = flex
-YACC = bison
+YACC = bison 
+YACCFLAGS = -d -v
 CFLAGS = -g -std=c++11 -W -Wall -Weffc++ -Wextra -pedantic -O0
 LEXFLAGS = -Wno-unused -Wno-sign-compare -Wno-deprecated-register
 
-OBJS = main.o parse.tab.o lex.yy.o ast.o symbolTable.o poolOfNodes.o
+OBJS = parse.tab.o lex.yy.o ast.o symbolTable.o poolOfNodes.o main.o 
 
 run: $(OBJS)
 	$(CCC) $(CFLAGS) -o run $(OBJS)
@@ -13,7 +14,8 @@ main.o: main.cpp
 	$(CCC) $(CFLAGS) -c main.cpp
 
 parse.tab.c: includes/parse.y
-	$(YACC) -d includes/parse.y
+	$(YACC) $(YACCFLAGS) includes/parse.y
+	# $(YACC) -d includes/parse.y
 
 parse.tab.o: parse.tab.c
 	$(CCC) $(CFLAGS) -c parse.tab.c

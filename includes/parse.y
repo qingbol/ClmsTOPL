@@ -24,7 +24,8 @@
 %union {
   Node* node_type;
   int int_type;
-  float float_type;
+  /* float float_type; */
+  double float_type;
   char *str_type;
   char operator_type;
 }
@@ -671,8 +672,8 @@ factor // Used in: term, factor, power
           }
           case '-': {
             /* Get the minus value used for string slicing. */
-            slice_left = static_cast<IntLiteral*>$2->get_val();
-            slice_left = -slice_left;
+            /* slice_left = static_cast<IntLiteral*>$2->get_val(); */
+            /* slice_left = -slice_left; */
             /* std::cerr << "minus slice_left is " << slice_left <<std::endl; */
             $$ = new UnaryNode($2);
             pool.add($$);
@@ -714,10 +715,13 @@ power // Used in: factor
         if (INT_MAX == slice_right) {
           slice_right = org_str_len;
         }
-
+         
         std::string t("");
         int sub_str_len;
         int slice_minus;
+        /* std::cerr << "slice_left is " << slice_left <<std::endl; */
+        /* std::cerr << "slice_right is " << slice_right <<std::endl; */
+        /* std::cerr << "org_str_len is " << org_str_len <<std::endl; */
         if (0 == slice_right) {
           if (-org_str_len <= slice_left && slice_left<=-1) {
             slice_minus = slice_left + org_str_len;
@@ -725,7 +729,10 @@ power // Used in: factor
           } else if (0 <= slice_left && slice_left<=(org_str_len-1)) {
             t = original_str[slice_left];
           } else {
-            throw std::string("IndexError: string index out of range");
+           std::cout << "IndexError: string index out of range" << std::endl;
+           yyparse();
+           /* return 0; */
+           /* throw std::string("IndexError: string index out of range"); */
           }
         } else {
           if (slice_left < 0) {
@@ -735,17 +742,17 @@ power // Used in: factor
             t = original_str.substr(slice_left, sub_str_len);
           }
         }
-        std::cerr << "original_str length is " << org_str_len <<std::endl;
+        $$ = new StringLiteral(t);
+        pool.add($$);
+        /* std::cerr << "original_str length is " << org_str_len <<std::endl; */
         /* std::cerr << "original string is " << orginal_str <<std::endl; */
         /* for (unsigned int i = 1; i <s.size()-1; ++i) { */
         /*   t = t + s[i]; */
         /* } */
         /* int slice_left = static_cast<IntLiteral*>$2->get_val(); */
-        std::cerr << "slice_left  in power is " << slice_left <<std::endl;
+        /* std::cerr << "slice_left  in power is " << slice_left <<std::endl; */
         /* std::cerr <<"t value is " << t <<std::endl; */
         /* $$ = new StringNode(t); */
-        $$ = new StringLiteral(t);
-        pool.add($$);
         /* delete[] $1; */
         /* delete[] $2; */
         /* std::cerr << "atom star_trailer $1  " << static_cast<const StringLiteral*>($1->eval())->get_val() <<std::endl; */
@@ -800,9 +807,9 @@ atom // Used in: power
     | INT_NUM   
     { 
       // std::cerr << $1 << std::endl; 
-      slice_left = $1;
+      /* slice_left = $1; */
       /* slice_left = static_cast<IntLiteral*>$1->get_val(); */
-      std::cerr << "slice_left in subscript|test  is " << slice_left <<std::endl;
+      /* std::cerr << "slice_left in subscript|test  is " << slice_left <<std::endl; */
       $$ = new IntLiteral($1);
       pool.add($$);
     }
@@ -837,9 +844,9 @@ plus_STRING // Used in: atom, plus_STRING
     : plus_STRING STRING
     // { $$ = 0; }
     { std::string s($2), t("");
-        //std::cerr << "atom star_trailer " << $2 <<std::endl;
-        //std::cerr << "atom star_trailer " << *$1 <<std::endl;
-        //std::cerr << "type of $1 is  " << typeid($2).name();
+        /* std::cerr << "atom star_trailer " << $2 <<std::endl; */
+        /* std::cerr << "atom star_trailer " << *$1 <<std::endl; */
+        /* std::cerr << "type of $1 is  " << typeid($2).name(); */
       for (unsigned int i = 1; i <s.size()-1; ++i) {
         t = t + s[i];
       }
@@ -848,23 +855,18 @@ plus_STRING // Used in: atom, plus_STRING
       delete[] $2;
     }
     | STRING
-    // { 
-    //   // $$ = 0; 
-    //   std::cerr << "string is here" <<std::endl;
-    //   std::cerr<< $1 << std::endl;
-    // }
     { 
       //std::cerr << $1 <<std::endl;
       std::string s($1), t("");
-       // std::cerr << "atom star_trailer " << $1 <<std::endl;
-        //std::cerr << "atom star_trailer " << *$1 <<std::endl;
-        //std::cerr << "type of $1 is  " << typeid($1).name();
+        /* std::cerr << "atom star_trailer " << $1 <<std::endl; */
+        /* std::cerr << "atom star_trailer " << *$1 <<std::endl; */
+        /* std::cerr << "type of $1 is  " << typeid($1).name(); */
       for (unsigned int i = 1; i <s.size()-1; ++i) {
         t = t + s[i];
       }
       /* slice_str = t; */
       /* std::cerr << "the 1st time " << slice_str <<std::endl; */
-      // std::cerr <<"t value is " << $1 <<std::endl;
+      /* std::cerr <<"t value is " << $1 <<std::endl; */
       /* $$ = new StringNode(t); */
       $$ = new StringLiteral(t);
       pool.add($$);
@@ -890,7 +892,7 @@ trailer // Used in: star_trailer
     { $$ = $2; }
     | LSQB subscriptlist RSQB   
     { $$ = $2;
-      std::cerr << "here" << std::endl; 
+      /* std::cerr << "here" << std::endl; */ 
     }
     | DOT NAME  
     { $$ = 0;
@@ -911,27 +913,34 @@ subscript // Used in: subscriptlist, star_COMMA_subscript
     { $$ = 0; }
     | test
     {
+      slice_left = static_cast<const IntLiteral*>($1->eval())->get_val();
       $$ = $1;
     }
     | opt_test_only COLON opt_test_only opt_sliceop
     { 
       if ($1) {
-        slice_left = static_cast<IntLiteral*>$1->get_val();
+        /* std::cerr << "In subscript $1's type is " << typeid($1).name() <<std::endl; */
+        slice_left = static_cast<const IntLiteral*>($1->eval())->get_val();
+        /* slice_left = slice_left; */
+        /* $$ = $1; */
       } else {
         slice_left = 0;
       }
 
       if ($3) {
-        slice_right = static_cast<IntLiteral*>$3->get_val();
+        /* std::cerr << "In subscript $1's type is " << typeid($1).name() <<std::endl; */
+        slice_right = static_cast<const IntLiteral*>($3->eval())->get_val();
+        /* slice_right = slice_right; */
+        /* $$ = $3; */
       } else {
         slice_right = INT_MAX;
       }
 
-      std::cerr << "In subscript MAX_INT is " << INT_MAX <<std::endl;
-      std::cerr << "In subscript original_str length is " << org_str_len <<std::endl;
-      std::cerr << "slice_left in subscript  is " << slice_left <<std::endl;
-      std::cerr << "slice_right in subscript  is " << slice_right <<std::endl;
-      std::cerr << "there" << std::endl;
+      /* std::cerr << "In subscript MAX_INT is " << INT_MAX <<std::endl; */
+      /* std::cerr << "In subscript original_str length is " << org_str_len <<std::endl; */
+      /* std::cerr << "slice_left in subscript  is " << slice_left <<std::endl; */
+      /* std::cerr << "slice_right in subscript  is " << slice_right <<std::endl; */
+      /* std::cerr << "there" << std::endl; */
     }
     ;
 opt_test_only // Used in: subscript
@@ -948,7 +957,7 @@ opt_sliceop // Used in: subscript
     ;
 sliceop // Used in: opt_sliceop
     : COLON test
-    { $$ = 0; }
+    { $$ = $2; }
     | COLON
     { $$ = 0; }
     ;
