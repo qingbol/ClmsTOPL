@@ -41,6 +41,7 @@
 %type<stmts> suite plus_stmt global_stmt star_COMMA_NAME star_trailer trailer arglist opt_arglist parameters star_fpdef_COMMA varargslist star_argument_COMMA star_ELIF
 %type<node> atom testlist testlist_comp opt_yield_test plus_STRING pick_yield_expr_testlist_comp power factor term arith_expr shift_expr and_expr xor_expr expr comparison not_test and_test or_test test opt_test print_stmt star_EQUAL pick_yield_expr_testlist expr_stmt opt_DOUBLESTAR_NAME file_input pick_NEWLINE_stmt star_NEWLINE_stmt small_stmt star_EQUAL_Right
 %type<node> funcdef return_stmt compound_stmt if_stmt flow_stmt stmt simple_stmt fpdef pick_argument argument while_stmt break_stmt
+%type<node> star_COMMA_test
 
 %start start
 
@@ -55,16 +56,19 @@ file_input // Used in: start
 	: star_NEWLINE_stmt ENDMARKER  { $$ = $1; } 
 	;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
-	: NEWLINE  { return NEWLINE; } 
+	: NEWLINE  { 
+		$$ = new PrintNode(0); 
+		pool.add($$);
+		// return NEWLINE; 
+		} 
 	| stmt     
 	{ 
 		if($1)
 		{
-		   //std::cout << "$1:" <<$1->eval()->getVal()<< std::endl;
+		$1->eval();
+		//    std::cout << "$1 is" <<$1->eval()->getVal()<< std::endl;
 		   $$ = $1;
 		}
-
-		
 	}  
 	;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
@@ -186,14 +190,18 @@ stmt // Used in: pick_NEWLINE_stmt, plus_stmt
           { 
               $$ = $1;
               //$1->eval();
-              if(SymbolTableManager::getInstance().funcDepth == 0) { $1->eval(); }
-              std::cout << "simple_stmt" << $1->getVal() << std::endl;
+            //   if(SymbolTableManager::getInstance().funcDepth == 0) { $1->eval(); }
+            //   std::cout << "simple_stmt" << $1->eval()->getVal() << std::endl;
           }
 	| compound_stmt  { $$ = $1; }
 	;
 simple_stmt // Used in: stmt, suite
-	: small_stmt star_SEMI_small_stmt SEMI NEWLINE   { $$ = $1; }
-	| small_stmt star_SEMI_small_stmt NEWLINE        { $$ = $1; }
+	: small_stmt star_SEMI_small_stmt SEMI NEWLINE   { $$ = $1; 
+            //   std::cout << "simple_stmt" << $1->eval()->getVal() << std::endl;
+	}
+	| small_stmt star_SEMI_small_stmt NEWLINE        { $$ = $1;
+            //   std::cout << "simple_stmt" << $1->eval()->getVal() << std::endl;
+	 }
 	;
 star_SEMI_small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	: star_SEMI_small_stmt SEMI small_stmt 
@@ -204,7 +212,9 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 	| print_stmt   { $$ = $1; }          
 	| del_stmt     { $$ = nullptr; }
 	| pass_stmt    { $$ = nullptr; }
-	| flow_stmt    { $$ = $1; }
+	| flow_stmt    { $$ = $1; 
+            //   std::cout << "simple_stmt" << $1->eval()->getVal() << std::endl;
+	}
 	| import_stmt  { $$ = nullptr; }
 	| global_stmt  
           { 
@@ -271,7 +281,8 @@ expr_stmt // Used in: small_stmt
           {
               if($2 != nullptr)
               {
-                  $$ = new SuiteNode($1, $2);
+				$$ = new AsgBinaryNode($1,$2);
+                //   $$ = new SuiteNode($1, $2);
                   pool.add($$);
               }
               else
@@ -513,9 +524,19 @@ compound_stmt // Used in: stmt
 	;
 if_stmt // Used in: compound_stmt
 	: IF test COLON suite star_ELIF ELSE COLON suite
-          { $$ = new IfNode($2, $4, $5,$8); pool.add($$); }
+          { 
+			//   $$ = new IfNode($2,$4,$8);
+			  $$ = new IfNode($2, $4, $5,$8); 
+			  pool.add($$); 
+			  }
 	| IF test COLON suite star_ELIF
-          { $$ = new IfNode($2, $4, $5,nullptr); pool.add($$); }
+          { 
+
+			//   $$ = new IfNode($2,$4,nullptr);
+			  $$ = new IfNode($2, $4, $5,nullptr); 
+			  pool.add($$); 
+		  
+		  }
 	;
 star_ELIF // Used in: if_stmt, star_ELIF
 	: star_ELIF ELIF test COLON suite
