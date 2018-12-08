@@ -26,23 +26,21 @@ int main(int argc, char * argv[]) {
   if (argc > 1) { /* user-supplied filename */
     input_file = open_file(argv[1]);
   }
-  init_scanner(input_file);
-  /* yydebug = 1; */   
-  /* Change to 1 if you want debugging */
-  int parse_had_errors = yyparse();
 
-  PoolOfNodes::getInstance().drainThePool();
-  fclose(input_file);
+  init_scanner(input_file);
+    /* yydebug = 1; */   
+    /* Change to 1 if you want debugging */
+    int parse_had_errors = yyparse();
+    PoolOfNodes::getInstance().drainThePool();
+    fclose(input_file);
   end_scanner();
 
   if (parse_had_errors) {
     fprintf(stderr,"Abnormal termination\n");
+  } else {
+    std::cout << "Program syntactically correct" << std::endl;
   }
-  else
-  std::cout << "Program syntactically correct" << std::endl;
-
   return (parse_had_errors ? EXIT_FAILURE : EXIT_SUCCESS);
-
 }
 
 
