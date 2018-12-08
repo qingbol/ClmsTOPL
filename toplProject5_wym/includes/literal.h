@@ -67,8 +67,6 @@ public:
   }
 };
 
-
-
 class FloatLiteral: public Literal {
 public:
   FloatLiteral(float _val): val(_val) {}
@@ -625,10 +623,13 @@ public:
     PoolOfNodes::getInstance().add(node);
     return node; 
   }
+
   virtual int isTrue() const {
     return (this->val);
   }
+  
   virtual const Literal* eval() const { return this; }
+
   virtual void print() const { 
     std::cout << "INT: " << val << std::endl; 
   }

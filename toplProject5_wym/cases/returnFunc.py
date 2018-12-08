@@ -2,9 +2,9 @@ def g():
   x = 0
   if x >= 0: 
     print 10
-    x = 3
+    x = 2
     if x: 
-      print x
+      print 1
       return
     else: 
       print 2

@@ -1,5 +1,5 @@
 
-#line 3 "lex.yy.c"
+#line 2 "lex.yy.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -743,10 +743,10 @@ static int keywords = 0;
 static int identifiers = 0;
 static int numbers = 0;
 
-#line 747 "lex.yy.c"
+#line 746 "lex.yy.c"
 /***** Start states for multi-line strings and indentation *****/
 
-#line 750 "lex.yy.c"
+#line 749 "lex.yy.c"
 
 #define INITIAL 0
 #define LONG_STRING 1
@@ -970,7 +970,7 @@ YY_DECL
 
 #line 164 "includes/scan.l"
   
-#line 974 "lex.yy.c"
+#line 973 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1545,7 +1545,7 @@ YY_RULE_SETUP
 #line 305 "includes/scan.l"
 ECHO;
 	YY_BREAK
-#line 1549 "lex.yy.c"
+#line 1548 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{

@@ -224,7 +224,7 @@ const Literal* IfNode::eval() const {
       if(res!= NULL) break;
       it++;
     }
-    std::cout << "in if" << std::endl;
+    // std::cout << "in if" << std::endl;
     return res;
   }else if(elifNode != NULL){
       std::vector<Node*>::iterator it = elifNode->begin();

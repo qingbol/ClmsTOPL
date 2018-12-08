@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.1.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -138,7 +138,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 18 "includes/parse.y" /* yacc.c:1909  */
+#line 18 "includes/parse.y" /* yacc.c:1919  */
 
 	char* id;
 	char* strId;
@@ -147,7 +147,7 @@ union YYSTYPE
   	Node* node;
         std::vector<Node *> * stmts;
 
-#line 151 "parse.tab.h" /* yacc.c:1909  */
+#line 151 "parse.tab.h" /* yacc.c:1919  */
 };
 
 typedef union YYSTYPE YYSTYPE;

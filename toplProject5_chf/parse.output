@@ -518,7 +518,8 @@ LPAR (306) 7 17 18 32 106 226 251 281
 LSQB (307) 227 252
 MINEQUAL (308) 60
 MINUS (309) 210 220
-NAME (310) 16 25 27 28 31 108 109 110 118 119 120 121 230 253 281 282
+NAME <id> (310) 16 25 27 28 31 108 109 110 118 119 120 121 230 253
+    281 282
 NEWLINE (311) 3 7 8 39 40 163
 NOT (312) 182 194 196
 NOTEQUAL (313) 192
@@ -548,9 +549,9 @@ VBAREQUAL (336) 65
 WHILE (337) 139 140
 WITH (338) 151
 YIELD (339) 313 314
-INTNUMBER (340) 231
-FLOATNUMBER (341) 232
-STRING (342) 243 244
+INTNUMBER <intNumber> (340) 231
+FLOATNUMBER <floatNumber> (341) 232
+STRING <strId> (342) 243 244
 
 
 Nonterminals, with rules where they appear
@@ -559,67 +560,67 @@ $accept (88)
     on left: 0
 start (89)
     on left: 1, on right: 0
-file_input (90)
+file_input <node> (90)
     on left: 2, on right: 1
-pick_NEWLINE_stmt (91)
+pick_NEWLINE_stmt <node> (91)
     on left: 3 4, on right: 5
-star_NEWLINE_stmt (92)
+star_NEWLINE_stmt <node> (92)
     on left: 5 6, on right: 2 5
 decorator (93)
     on left: 7 8, on right: 11 12
-opt_arglist (94)
+opt_arglist <stmts> (94)
     on left: 9 10, on right: 7 251
 decorators (95)
     on left: 11 12, on right: 11 13 14
 decorated (96)
     on left: 13 14, on right: 134
-funcdef (97)
+funcdef <node> (97)
     on left: 16, on right: 14 132
 $@1 (98)
     on left: 15, on right: 16
-parameters (99)
+parameters <stmts> (99)
     on left: 17 18, on right: 16
-varargslist (100)
+varargslist <stmts> (100)
     on left: 19 20, on right: 17 172 249
 opt_EQUAL_test (101)
     on left: 21 22, on right: 20 23
-star_fpdef_COMMA (102)
+star_fpdef_COMMA <stmts> (102)
     on left: 23 24, on right: 19 20 23
-opt_DOUBLESTAR_NAME (103)
+opt_DOUBLESTAR_NAME <node> (103)
     on left: 25 26, on right: 27
 pick_STAR_DOUBLESTAR (104)
     on left: 27 28, on right: 19
 opt_COMMA (105)
     on left: 29 30, on right: 20 75 79 166 246 248 278 280 292
-fpdef (106)
+fpdef <node> (106)
     on left: 31 32, on right: 20 23 33 34 35
 fplist (107)
     on left: 33 34, on right: 32
 star_fpdef_notest (108)
     on left: 35 36, on right: 33 34 35
-stmt (109)
+stmt <node> (109)
     on left: 37 38, on right: 4 164 165
-simple_stmt (110)
+simple_stmt <node> (110)
     on left: 39 40, on right: 37 162
 star_SEMI_small_stmt (111)
     on left: 41 42, on right: 39 40 41
-small_stmt (112)
+small_stmt <node> (112)
     on left: 43 44 45 46 47 48 49 50 51, on right: 39 40 41
-expr_stmt (113)
+expr_stmt <node> (113)
     on left: 52 53, on right: 43
-pick_yield_expr_testlist (114)
+pick_yield_expr_testlist <node> (114)
     on left: 54 55, on right: 52 57
-star_EQUAL (115)
+star_EQUAL <node> (115)
     on left: 56, on right: 53
-star_EQUAL_Right (116)
+star_EQUAL_Right <node> (116)
     on left: 57 58, on right: 56 57
-augassign (117)
+augassign <intNumber> (117)
     on left: 59 60 61 62 63 64 65 66 67 68 69 70, on right: 52
-print_stmt (118)
+print_stmt <node> (118)
     on left: 71 72, on right: 44
-star_COMMA_test (119)
+star_COMMA_test <node> (119)
     on left: 73 74, on right: 73 75 246 248 271 272 280
-opt_test (120)
+opt_test <node> (120)
     on left: 75 76, on right: 71
 plus_COMMA_test (121)
     on left: 77 78, on right: 77 79
@@ -629,13 +630,13 @@ del_stmt (123)
     on left: 81, on right: 45
 pass_stmt (124)
     on left: 82, on right: 46
-flow_stmt (125)
+flow_stmt <node> (125)
     on left: 83 84 85 86 87, on right: 47
-break_stmt (126)
+break_stmt <node> (126)
     on left: 88, on right: 83
 continue_stmt (127)
     on left: 89, on right: 84
-return_stmt (128)
+return_stmt <node> (128)
     on left: 90 91, on right: 85
 yield_stmt (129)
     on left: 92, on right: 87
@@ -667,21 +668,21 @@ dotted_as_names (142)
     on left: 116 117, on right: 101 117
 dotted_name (143)
     on left: 118 119, on right: 7 8 103 110 111 119
-global_stmt (144)
+global_stmt <stmts> (144)
     on left: 120, on right: 49
-star_COMMA_NAME (145)
+star_COMMA_NAME <stmts> (145)
     on left: 121 122, on right: 120 121
 exec_stmt (146)
     on left: 123 124, on right: 50
 assert_stmt (147)
     on left: 125 126, on right: 51
-compound_stmt (148)
+compound_stmt <node> (148)
     on left: 127 128 129 130 131 132 133 134, on right: 38
-if_stmt (149)
+if_stmt <node> (149)
     on left: 135 136, on right: 127
-star_ELIF (150)
+star_ELIF <stmts> (150)
     on left: 137 138, on right: 135 136 137
-while_stmt (151)
+while_stmt <node> (151)
     on left: 139 140, on right: 128
 for_stmt (152)
     on left: 141 142, on right: 129
@@ -705,10 +706,10 @@ pick_AS_COMMA (161)
     on left: 158 159, on right: 160
 opt_AS_COMMA (162)
     on left: 160 161, on right: 156
-suite (163)
+suite <stmts> (163)
     on left: 162 163, on right: 16 135 136 137 139 140 141 142 143
     144 145 146 147 149 151 281 282
-plus_stmt (164)
+plus_stmt <stmts> (164)
     on left: 164 165, on right: 163 164
 testlist_safe (165)
     on left: 166 167, on right: 301 302
@@ -719,68 +720,68 @@ old_test (167)
     310
 old_lambdef (168)
     on left: 172 173, on right: 171
-test (169)
+test <node> (169)
     on left: 174 175, on right: 21 72 73 75 77 78 93 95 97 123 125
     126 135 136 137 139 140 154 155 156 160 176 245 246 247 248 249
     250 259 261 265 271 272 273 274 275 290 293 294 295 296 311 312
 opt_IF_ELSE (170)
     on left: 176 177, on right: 174
-or_test (171)
+or_test <node> (171)
     on left: 178 179, on right: 170 174 176 179 307 308
-and_test (172)
+and_test <node> (172)
     on left: 180 181, on right: 178 179 181
-not_test (173)
+not_test <node> (173)
     on left: 182 183, on right: 180 181 182
-comparison (174)
+comparison <node> (174)
     on left: 184 185, on right: 183 185
-comp_op (175)
+comp_op <intNumber> (175)
     on left: 186 187 188 189 190 191 192 193 194 195 196, on right:
     185
-expr (176)
+expr <node> (176)
     on left: 197 198, on right: 123 124 154 184 185 198 267 268 269
-xor_expr (177)
+xor_expr <node> (177)
     on left: 199 200, on right: 197 198 200
-and_expr (178)
+and_expr <node> (178)
     on left: 201 202, on right: 199 200 202
-shift_expr (179)
+shift_expr <node> (179)
     on left: 203 204, on right: 201 202 204
 pick_LEFTSHIFT_RIGHTSHIFT (180)
     on left: 205 206, on right: 204
-arith_expr (181)
+arith_expr <node> (181)
     on left: 207 208, on right: 203 204 208
-pick_PLUS_MINUS (182)
+pick_PLUS_MINUS <intNumber> (182)
     on left: 209 210, on right: 208
-term (183)
+term <node> (183)
     on left: 211 212, on right: 207 208 212
-pick_multop (184)
+pick_multop <intNumber> (184)
     on left: 213 214 215 216, on right: 212
-factor (185)
+factor <node> (185)
     on left: 217 218, on right: 211 212 217 222
-pick_unop (186)
+pick_unop <intNumber> (186)
     on left: 219 220 221, on right: 217
-power (187)
+power <node> (187)
     on left: 222 223, on right: 218
-star_trailer (188)
+star_trailer <stmts> (188)
     on left: 224 225, on right: 222 223 224
-atom (189)
+atom <node> (189)
     on left: 226 227 228 229 230 231 232 233 234, on right: 222 223
-pick_yield_expr_testlist_comp (190)
+pick_yield_expr_testlist_comp <node> (190)
     on left: 235 236, on right: 237
-opt_yield_test (191)
+opt_yield_test <node> (191)
     on left: 237 238, on right: 226
 opt_listmaker (192)
     on left: 239 240, on right: 227
 opt_dictorsetmaker (193)
     on left: 241 242, on right: 228
-plus_STRING (194)
+plus_STRING <node> (194)
     on left: 243 244, on right: 234 243
 listmaker (195)
     on left: 245 246, on right: 239
-testlist_comp (196)
+testlist_comp <node> (196)
     on left: 247 248, on right: 236
 lambdef (197)
     on left: 249 250, on right: 175
-trailer (198)
+trailer <stmts> (198)
     on left: 251 252 253, on right: 224
 subscriptlist (199)
     on left: 254 255, on right: 252
@@ -798,7 +799,7 @@ exprlist (205)
     on left: 267 268, on right: 81 141 142 301 302 307 308
 star_COMMA_expr (206)
     on left: 269 270, on right: 267 268 269
-testlist (207)
+testlist <node> (207)
     on left: 271 272, on right: 52 53 55 90 141 142 283 313
 dictorsetmaker (208)
     on left: 273 274, on right: 241
@@ -812,17 +813,17 @@ classdef (212)
     on left: 281 282, on right: 13 133
 opt_testlist (213)
     on left: 283 284, on right: 281
-arglist (214)
+arglist <stmts> (214)
     on left: 285, on right: 9
-star_argument_COMMA (215)
+star_argument_COMMA <stmts> (215)
     on left: 286 287, on right: 285 286
 star_COMMA_argument (216)
     on left: 288 289, on right: 288 293
 opt_DOUBLESTAR_test (217)
     on left: 290 291, on right: 293
-pick_argument (218)
+pick_argument <node> (218)
     on left: 292 293 294, on right: 285
-argument (219)
+argument <node> (219)
     on left: 295 296, on right: 286 288 292
 opt_comp_for (220)
     on left: 297 298, on right: 295
