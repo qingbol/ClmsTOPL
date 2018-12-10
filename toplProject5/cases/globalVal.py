@@ -1,4 +1,4 @@
-x = 1
+x = 8
 def g():
   print x
 

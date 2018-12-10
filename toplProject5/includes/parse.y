@@ -61,7 +61,7 @@
 %type <node_type> opt_sliceop sliceop
 %type <node_type> pick_NEWLINE_stmt decorated funcdef stmt simple_stmt
 %type <node_type> small_stmt flow_stmt return_stmt compound_stmt suite 
-%type <node_type> plus_stmt 
+%type <node_type> plus_stmt if_stmt star_ELIF 
 
 %type <operator_type> pick_PLUS_MINUS pick_multop pick_unop augassign comp_op
 
@@ -477,7 +477,7 @@ assert_stmt // Used in: small_stmt
     ;
 compound_stmt // Used in: stmt
     : if_stmt           
-    { $$ = nullptr;}
+    { $$ = $1;}
     | while_stmt        
     { $$ = nullptr;}
     | for_stmt          
@@ -495,11 +495,29 @@ compound_stmt // Used in: stmt
     ;
 if_stmt // Used in: compound_stmt
     : IF test COLON suite star_ELIF ELSE COLON suite  
+    {
+      if ($2) {
+        $$ = new IfNode($2, $4, $5, $8);
+        pool.add($$);
+      }
+    }
     | IF test COLON suite star_ELIF     
+    {
+      if ($2) {
+        $$ = new IfNode($2, $4, $5, nullptr);
+        pool.add($$);
+      }
+    }
     ;
 star_ELIF // Used in: if_stmt, star_ELIF
     : star_ELIF ELIF test COLON suite 
+    {
+      $$ = nullptr;
+    }
     | %empty
+    {
+      $$ = nullptr;
+    }
     ;
 while_stmt // Used in: compound_stmt
     : WHILE test COLON suite ELSE COLON suite       
@@ -627,26 +645,33 @@ comparison // Used in: not_test, comparison
         case '1': {
           $$ = new LessBinaryNode($1, $3);
           pool.add($$);
+          break;
         }
         case '2': {
           $$ = new GreaterBinaryNode($1, $3);
           pool.add($$);
+          break;
         }
         case '3': {
           $$ = new EqualEqualBinaryNode($1, $3);
+        //   std::cerr << "comparison ==" << $$->eval() << std::endl;
           pool.add($$);
+          break;
         }
         case '4': {
           $$ = new GreaterEqualBinaryNode($1, $3);
           pool.add($$);
+          break;
         }
         case '5': {
           $$ = new LessEqualBinaryNode($1, $3);
           pool.add($$);
+          break;
         }
         case '6': {
           $$ = new NotEqualBinaryNode($1, $3);
           pool.add($$);
+          break;
         }
       }
     }
@@ -868,7 +893,11 @@ power // Used in: factor
     ;
 star_trailer // Used in: power, star_trailer
     : star_trailer trailer
-    { $$ = $2;}
+    { 
+      $$ = $2;
+    //   std::cerr << "$$ in star_trailer is " << typeid($$).name() << std::endl;
+    //   std::cerr << "$$ in star_trailer is " << $$->eval() << std::endl;
+    }
     | %empty    
     { $$ = 0; }
     ;

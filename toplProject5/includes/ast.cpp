@@ -77,6 +77,22 @@ const Literal* IdentifierNode::eval() const {
   return val;
 }
 
+const Literal* IfNode::eval() const {
+  if (!test_) return nullptr;
+  const Literal* lit = test_->eval();
+  // std::cerr << "test value is " << test_->eval()->get_value() << std::endl;
+  if (!lit) throw std::string("test boolean operator is invalid");
+
+  if (lit->get_value()) {
+    if_suite_->eval();
+  } else if (elif_vector_) {
+
+  } else if (else_suite_) {
+    else_suite_->eval();
+  }
+  return nullptr;
+}
+
 const Literal* StringNode::eval() const { 
   const Literal* val;
   try{
@@ -210,6 +226,8 @@ const Literal* EqualEqualBinaryNode::eval() const {
   }
   const Literal* x = left->eval();
   const Literal* y = right->eval();
+  // std::cerr << "x value is " << x->get_value() <<std::endl;
+  // std::cerr << "y value is " << y->get_value() <<std::endl;
   return (*x).EqualEqual(*y);
 }
 

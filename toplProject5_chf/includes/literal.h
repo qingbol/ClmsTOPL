@@ -170,7 +170,6 @@ public:
     std::cout << "STRING: " << "\""<< val << "\"" << std::endl;   
   }
 
-
 private:
   std::string val;
 };

@@ -44,7 +44,7 @@ public:
   //virtual const Literal* PlusOp()  const = 0;
   virtual const Literal* MiusOp()  const = 0;
 
-  //=======start(new operation for project5)=============
+  //%%%%%%start(new operation for project5)%%%%%%%%
   virtual const Literal* Less(const Literal& rhs) const = 0;
   virtual const Literal* opLess(double) const = 0;
   virtual const Literal* opLess(int) const = 0;
@@ -68,8 +68,9 @@ public:
   virtual const Literal* NotEqual(const Literal& rhs) const = 0;
   virtual const Literal* opNotEqual(double) const = 0;
   virtual const Literal* opNotEqual(int) const = 0;
-  //=======end(new operation for project5)=============
+  //%%%%%%%end(new operation for project5)%%%%%%%%%
 
+  virtual int get_value() const = 0;
   virtual const Literal* eval() const = 0;
   virtual void print() const { 
     std::cout << "No Way" << std::endl; 
@@ -202,7 +203,7 @@ class FloatLiteral: public Literal {
     return node; 
   }
 
-  //=========start(comparision for project5)==========
+  //%%%%%%%%%start(comparision for project5)%%%%%
   virtual const Literal* Less(const Literal& rhs) const {
     return rhs.opLess(val);
   }
@@ -249,6 +250,7 @@ class FloatLiteral: public Literal {
   }
 
   virtual const Literal* EqualEqual(const Literal& rhs) const {
+    // std::cerr << "double equalEqual" << std::endl;
     return rhs.opEqualEqual(val);
   }
   virtual const Literal* opEqualEqual(double lhs) const {
@@ -335,9 +337,10 @@ class FloatLiteral: public Literal {
     PoolOfNodes::getInstance().add(node);
     return node;
   }
-  //=========end(comparision for project5)==========
+  //%%%%%%%%%%%%%%end(comparision for project5)%%%
 
   virtual const Literal* eval() const { return this; }
+  virtual int get_value() const { return (int)(this->val);}
   virtual void print() const { 
     if(fmod(val,1) == 0){
       std::cout << "double: " << std::setprecision(17) << val << ".0" << std::endl;
@@ -452,7 +455,7 @@ public:
     throw std::string("string can't multiply int");
   }
 
-  //=========start(comparision for project5)==========
+  //%%%%%%%%start(comparision for project5)%%%%%
   virtual const Literal* Less(const Literal& ) const {
     throw std::string("string can't compare");
     // return rhs.opLess(val);
@@ -518,13 +521,14 @@ public:
   virtual const Literal* opNotEqual(int ) const {
     throw std::string("string can't compare");
   }
-  //=========end(comparision for project5)==========
+  //%%%%%%%%end(comparision for project5)%%%%%%%%%%
 
+  virtual int get_value() const { return 123;}
+  std::string get_val() const { return val; }
   virtual const Literal* eval() const { return this; }
   virtual void print() const { 
     std::cout << "STRING: " << val << std::endl; 
   }
-  const std::string get_val() const { return val; }
 private:
   std::string val;
 };
@@ -671,7 +675,7 @@ public:
     return node; 
   }
   
-  //========start(comparision for project5)=====
+  //%%%%%%%%%start(comparision for project5)%%%%%%%%%
   virtual const Literal* Less(const Literal& rhs) const {
     return rhs.opLess(val);
   }
@@ -721,9 +725,9 @@ public:
   }
 
   virtual const Literal* EqualEqual(const Literal& rhs) const {
+    // std::cerr << "int equalEqual" << std::endl;
     return rhs.opEqualEqual(val);
   }
-
   virtual const Literal* opEqualEqual(double lhs) const {
     const Literal* node;
     if(lhs == val)
@@ -733,13 +737,16 @@ public:
     PoolOfNodes::getInstance().add(node);
     return node;
   }
-
   virtual const Literal* opEqualEqual(int lhs) const {
     const Literal* node;
-    if(lhs == val)
+    // std::cerr << "lhs is " << lhs << " val is " << val << std::endl;
+    if(lhs == val) {
+      // std::cerr << "lhs==val" <<std::endl;
       node = new IntLiteral(1);
-    else
+    } else {
+      // std::cerr << "lhs<>val" <<std::endl;
       node = new IntLiteral(0);
+    }
     PoolOfNodes::getInstance().add(node);
     return node;
   }
@@ -815,14 +822,14 @@ public:
     PoolOfNodes::getInstance().add(node);
     return node;
   }
-  //========end(comparision for project5)=====
+  //%%%%%%%%%%%end(comparision for project5)%%%%%
 
   virtual const Literal* eval() const { return this; }
   virtual void print() const { 
     std::cout << "INT: " << val << std::endl; 
   }
-  int get_val() const { return val;}
-  /* const int get_val() const { return val;} */
+  virtual int get_value() const { return this->val;}
+  int get_val() const { return val;} 
 private:
   int val;
 };

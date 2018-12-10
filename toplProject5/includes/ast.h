@@ -87,6 +87,50 @@ class ReturnNode : public Node {
   std::string return_name_;
 };
 
+//// IfNode=========
+class IfNode : public Node {
+ public:
+  IfNode(const Node* test, const Node* ifstmt, const Node* elifstmt,
+         const Node* elsestmt) 
+      : test_(test), if_suite_(ifstmt), elif_vector_(elifstmt),
+        else_suite_(elsestmt) {}
+  IfNode(const IfNode&) = delete;
+  const IfNode* operator= (const IfNode& i) = delete;
+  virtual ~IfNode() {}
+  virtual const Literal* eval() const;
+ protected:
+   const Node* test_;
+   const Node* if_suite_;
+   const Node* elif_vector_;
+   const Node* else_suite_;
+};
+
+////elifNode==============
+class ElifNode : public Node {
+ public:
+  ElifNode(const Node* test, const Node* elifstmt) 
+      : test_(test), elif_suite_(elifstmt) {} 
+  ElifNode(const ElifNode&) = delete;
+  const ElifNode* operator= (const ElifNode& i) = delete;
+  virtual ~ElifNode() {}
+  virtual const Literal* eval() const;
+ private:
+  const Node* test_;
+  const Node* elif_suite_;
+};
+
+////ElifVectorNode==== used  for store ElifNode
+class ElifVectorNode : public Node {
+ public:
+  ElifVectorNode() : Node(), elif_vector_() {}
+  void InsertElifNode(Node* i);
+  virtual ~ElifVectorNode() {}
+  virtual const Literal* eval() const;
+ private:
+  std::vector<Node*> elif_vector_;
+};
+
+
 class StringNode : public Node {
 public:
   StringNode(const std::string id) : Node(), str_(id) { } 

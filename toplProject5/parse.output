@@ -674,9 +674,9 @@ assert_stmt (145)
     on left: 123 124, on right: 50
 compound_stmt <node_type> (146)
     on left: 125 126 127 128 129 130 131 132, on right: 37
-if_stmt (147)
+if_stmt <node_type> (147)
     on left: 133 134, on right: 125
-star_ELIF (148)
+star_ELIF <node_type> (148)
     on left: 135 136, on right: 133 134 135
 while_stmt (149)
     on left: 137 138, on right: 126

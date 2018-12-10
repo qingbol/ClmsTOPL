@@ -8,6 +8,5 @@ def g():
     else: 
       print 2
 
-
 g()
 print 7
