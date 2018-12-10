@@ -86,11 +86,41 @@ const Literal* IfNode::eval() const {
   if (lit->get_value()) {
     if_suite_->eval();
   } else if (elif_vector_) {
-
+    elif_vector_->eval();
   } else if (else_suite_) {
     else_suite_->eval();
   }
   return nullptr;
+}
+
+const Literal* ElifNode::eval() const {
+  if (!test_) return nullptr;
+  const Literal* lit = test_->eval();
+  if (!lit) throw std::string("test is invalid");
+  if (lit->get_value()) {
+    elif_suite_->eval();
+  }
+  return nullptr;
+}
+
+////Insert ElifNode into ElifVectorNode
+void ElifVectorNode::InsertElifNode(Node* i) {
+  elif_vector_.push_back(i);
+}
+
+const Literal* ElifVectorNode::eval() const {
+  if (elif_vector_.empty()) {
+    return nullptr;
+  } else {
+    for (const Node* n : elif_vector_) {
+      if (n) {
+        n->eval();
+      } else {
+        throw std::string("elif_vector_ is nullptr");
+      }
+    }
+    return nullptr;
+  }
 }
 
 const Literal* StringNode::eval() const { 

@@ -512,7 +512,19 @@ if_stmt // Used in: compound_stmt
 star_ELIF // Used in: if_stmt, star_ELIF
     : star_ELIF ELIF test COLON suite 
     {
-      $$ = nullptr;
+      if ($1) {
+        Node* elif_node = new ElifNode($3, $5);
+        $$ = $1;
+        dynamic_cast<ElifVectorNode*>($$)->InsertElifNode(elif_node);
+        pool.add(elif_node);
+        // pool.add($$);
+      } else {
+        $$ = new ElifVectorNode();
+        Node* elif_node = new ElifNode($3, $5);
+        dynamic_cast<ElifVectorNode*>($$)->InsertElifNode(elif_node);
+        pool.add(elif_node);
+        pool.add($$);
+      }
     }
     | %empty
     {
