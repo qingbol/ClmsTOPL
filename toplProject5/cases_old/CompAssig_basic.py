@@ -6,9 +6,9 @@ print x
 x += 2.0
 print x
 
-x = y = 4
-print x
-print y
+# x = y = 4
+# print x
+# print y
 
 y = 2.0
 x **= y
@@ -44,7 +44,7 @@ x = 3
 x = x + 10
 print x
 
-x=y=z=4
-print z
-print x
-print y
+# x=y=z=4
+# print z
+# print x
+# print y

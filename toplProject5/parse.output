@@ -562,7 +562,7 @@ start (89)
     on left: 1, on right: 0
 file_input (90)
     on left: 2, on right: 1
-pick_NEWLINE_stmt (91)
+pick_NEWLINE_stmt <node_type> (91)
     on left: 3 4, on right: 5
 star_NEWLINE_stmt (92)
     on left: 5 6, on right: 2 5
@@ -572,9 +572,9 @@ opt_arglist <node_type> (94)
     on left: 9 10, on right: 7 248
 decorators (95)
     on left: 11 12, on right: 11 13 14
-decorated (96)
+decorated <node_type> (96)
     on left: 13 14, on right: 132
-funcdef (97)
+funcdef <node_type> (97)
     on left: 15, on right: 14 130
 parameters <node_type> (98)
     on left: 16 17, on right: 15
@@ -596,13 +596,13 @@ fplist (106)
     on left: 32 33, on right: 31
 star_fpdef_notest (107)
     on left: 34 35, on right: 32 33 34
-stmt (108)
+stmt <node_type> (108)
     on left: 36 37, on right: 4 162 163
-simple_stmt (109)
+simple_stmt <node_type> (109)
     on left: 38 39, on right: 36 160
 star_SEMI_small_stmt (110)
     on left: 40 41, on right: 38 39 40
-small_stmt (111)
+small_stmt <node_type> (111)
     on left: 42 43 44 45 46 47 48 49 50, on right: 38 39 40
 expr_stmt <node_type> (112)
     on left: 51 52, on right: 42
@@ -626,13 +626,13 @@ del_stmt (121)
     on left: 79, on right: 44
 pass_stmt (122)
     on left: 80, on right: 45
-flow_stmt (123)
+flow_stmt <node_type> (123)
     on left: 81 82 83 84 85, on right: 46
 break_stmt (124)
     on left: 86, on right: 81
 continue_stmt (125)
     on left: 87, on right: 82
-return_stmt (126)
+return_stmt <node_type> (126)
     on left: 88 89, on right: 83
 yield_stmt (127)
     on left: 90, on right: 85
@@ -672,7 +672,7 @@ exec_stmt (144)
     on left: 121 122, on right: 49
 assert_stmt (145)
     on left: 123 124, on right: 50
-compound_stmt (146)
+compound_stmt <node_type> (146)
     on left: 125 126 127 128 129 130 131 132, on right: 37
 if_stmt (147)
     on left: 133 134, on right: 125
@@ -702,10 +702,10 @@ pick_AS_COMMA (159)
     on left: 156 157, on right: 158
 opt_AS_COMMA (160)
     on left: 158 159, on right: 154
-suite (161)
+suite <node_type> (161)
     on left: 160 161, on right: 15 133 134 135 137 138 139 140 141
     142 143 144 145 147 149 278 279
-plus_stmt (162)
+plus_stmt <node_type> (162)
     on left: 162 163, on right: 161 162
 testlist_safe (163)
     on left: 164 165, on right: 298 299
@@ -730,7 +730,7 @@ not_test <node_type> (171)
     on left: 180 181, on right: 178 179 180
 comparison <node_type> (172)
     on left: 182 183, on right: 181 183
-comp_op (173)
+comp_op <operator_type> (173)
     on left: 184 185 186 187 188 189 190 191 192 193 194, on right:
     183
 expr <node_type> (174)

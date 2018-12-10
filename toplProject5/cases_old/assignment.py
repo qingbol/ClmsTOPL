@@ -32,9 +32,9 @@ z=+++++++3
 print z
 print ---z
 
-x=y=z=8
-print x
-print y
-print z
-print x**y//z
-print x**y//z-----x
+# x=y=z=8
+# print x
+# print y
+# print z
+# print x**y//z
+# print x**y//z-----x

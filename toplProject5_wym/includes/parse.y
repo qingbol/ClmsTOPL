@@ -3,7 +3,7 @@
 	#include <iostream>
 	#include <string>
 	#include <stack>
-
+	#include <typeinfo>
 
 	int yylex (void);
 	extern char *yytext;
@@ -68,8 +68,10 @@ pick_NEWLINE_stmt
 	| stmt
 	{	
 		if($1) {
-			$1->eval();
-			// std::cerr << "$1 is " << $1->eval()->isTrue() << std::endl;
+		  std::string node_type = typeid($1).name();
+		  std::cerr << "node type is " << node_type << std::endl;
+		  $1->eval();
+		  // std::cerr << "$1 is " << $1->eval()->isTrue() << std::endl;
 		}
 		else{
 		}
@@ -98,7 +100,7 @@ decorated
 funcdef 
 	: DEF NAME parameters COLON suite	
         {
-			std::cerr << "this is a func" << std::endl;
+			// std::cerr << "this is a func" << std::endl;
         	$$ = new FunctionNode($2,$5);
         	pool.add($$);
         	delete[] $2;
@@ -495,7 +497,7 @@ suite
 	: simple_stmt     { $$ = $1;}        
 	| NEWLINE INDENT plus_stmt DEDENT   
 		{
-			std::cerr << "this is a suite" << std::endl;
+			// std::cerr << "this is a suite" << std::endl;
 			$$ = $3;
 		}
 	;

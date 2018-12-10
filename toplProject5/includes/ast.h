@@ -8,21 +8,84 @@
 #include <string>
 #include <map>
 #include "literal.h"
+#include "scopeManager.h"
 
 
 extern void yyerror(const char*);
 extern void yyerror(const char*, const char);
 
-class IdentNode : public Node {
-public:
-  IdentNode(const std::string id) : Node(), ident(id) { } 
-  virtual ~IdentNode() {}
-  const std::string getIdent() const { return ident; }
+class PrintNode : public Node {
+ public:
+  PrintNode(Node* n) : Node(), print_node_(n){}
+  PrintNode(const PrintNode&) = delete;
+  PrintNode& operator=(const PrintNode) = delete;
+  virtual ~PrintNode() {}
+  Node * get_print_node() const {
+    return print_node_;
+  }
   virtual const Literal* eval() const;
-private:
-  std::string ident;
+ protected:
+  Node* print_node_;
 };
 
+class IdentifierNode : public Node {
+ public:
+  IdentifierNode(const std::string id) : Node(), identifier_(id) { } 
+  virtual ~IdentifierNode() {}
+  const std::string get_identifier() const { return identifier_; }
+  virtual const Literal* eval() const;
+ private:
+  std::string identifier_;
+};
+
+class FunctionNode : public Node {
+ public:
+  FunctionNode(const std::string id, Node* stmts) 
+      : Node(), function_name_(id), function_body_(stmts) {}
+  FunctionNode(const FunctionNode&) = delete;
+  FunctionNode& operator=(const FunctionNode&) = delete;
+  virtual ~FunctionNode() {}
+  const std::string get_function_name() const {return function_name_;}
+  virtual const Literal* eval() const;
+ private:
+  std::string function_name_;
+  Node* function_body_;
+};
+ 
+class SuiteNode : public Node {
+ public:
+  SuiteNode() : Node(), suite_stmts_() {}
+  void set_suite_stmts(Node* i);
+  virtual ~SuiteNode() {}
+  virtual const Literal* eval() const;
+ private:
+  std::vector<Node*> suite_stmts_;
+};
+
+class CallNode : public Node {
+ public:
+  CallNode(const std::string id) : Node(), identifier_(id) {}
+  virtual const Literal* eval() const;
+  virtual ~CallNode() {}
+  const std::string get_identifier() const {
+    return identifier_;
+  }
+ private:
+  std::string identifier_;
+};
+
+class ReturnNode : public Node {
+ public:
+  ReturnNode(Node* return_node, std::string return_name = "__RETURN__") 
+      : Node(), return_node_(return_node), return_name_(return_name) {}
+  ReturnNode(const ReturnNode&) = delete;
+  const ReturnNode& operator=(const ReturnNode& ret) = delete;
+  virtual ~ReturnNode() {}
+  virtual const Literal* eval() const;
+ private:
+  Node* return_node_;
+  std::string return_name_;
+};
 
 class StringNode : public Node {
 public:
@@ -33,8 +96,6 @@ public:
 private:
   std::string str_;
 };
-
-
 
 // Binary Node //////////////
 class BinaryNode : public Node {
@@ -125,3 +186,42 @@ public:
   virtual const Literal* eval() const;
 };
 */
+
+class LessBinaryNode : public BinaryNode {
+public:
+   LessBinaryNode(Node* left, Node* right) : BinaryNode(left,right) {}
+   virtual const Literal* eval() const;
+};
+
+
+class GreaterBinaryNode : public BinaryNode {
+public:
+   GreaterBinaryNode(Node* left, Node* right) : BinaryNode(left,right) {
+     std::cout << "Great Binary Node" << std::endl;
+   }
+   virtual const Literal* eval() const;
+};
+
+class EqualEqualBinaryNode : public BinaryNode {
+public:
+   EqualEqualBinaryNode(Node* left, Node* right) : BinaryNode(left,right) {}
+   virtual const Literal* eval() const;
+};
+
+class GreaterEqualBinaryNode : public BinaryNode {
+public:
+   GreaterEqualBinaryNode(Node* left, Node* right) : BinaryNode(left,right) {}
+   virtual const Literal* eval() const;
+};
+
+class LessEqualBinaryNode : public BinaryNode {
+public:
+   LessEqualBinaryNode(Node* left, Node* right) : BinaryNode(left,right) {}
+   virtual const Literal* eval() const;
+};
+
+class NotEqualBinaryNode : public BinaryNode {
+public:
+   NotEqualBinaryNode(Node* left, Node* right) : BinaryNode(left,right) {}
+   virtual const Literal* eval() const;
+};

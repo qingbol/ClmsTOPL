@@ -138,7 +138,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 24 "includes/parse.y" /* yacc.c:1919  */
+#line 27 "includes/parse.y" /* yacc.c:1919  */
 
   Node* node_type;
   int int_type;

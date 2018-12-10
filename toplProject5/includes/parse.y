@@ -17,6 +17,9 @@
   /* const int MAX_INT= Integer.MAX_VALUE; */  
   /* const unsigned int MAX_INT= -1; */  
   /* int max_integer = MAX_INT; */
+
+  //used to indicate the parenthesis or square bracket
+  std::string bracket_type = "";
   
   PoolOfNodes& pool = PoolOfNodes::getInstance();
 %}
@@ -32,7 +35,7 @@
 
 // 83 tokens, in alphabetical order:
 %token AMPEREQUAL AMPERSAND AND AS ASSERT AT BACKQUOTE BAR BREAK CIRCUMFLEX
-%token CIRCUMFLEXEQUAL CLASS COMMA CONTINUE DEDENT DEF DEL DOT DOUBLESLASH //COLON 
+%token CIRCUMFLEXEQUAL CLASS COMMA CONTINUE DEDENT DEF DEL DOT DOUBLESLASH
 %token DOUBLESLASHEQUAL DOUBLESTAR DOUBLESTAREQUAL ELIF ELSE ENDMARKER EQEQUAL
 %token EQUAL EXCEPT EXEC FINALLY FOR FROM GLOBAL GREATER GREATEREQUAL GRLT
 %token IF IMPORT IN INDENT IS LAMBDA LBRACE LEFTSHIFT LEFTSHIFTEQUAL LESS
@@ -52,11 +55,15 @@
 %type <node_type> opt_IF_ELSE opt_arglist opt_test opt_yield_test or_test 
 %type <node_type> parameters power pick_yield_expr_testlist pick_argument 
 %type <node_type> pick_yield_expr_testlist_comp print_stmt 
-%type <node_type> star_EQUAL shift_expr star_COMMA_test star_trailer //star_EQUAL_R
+%type <node_type> star_EQUAL shift_expr star_COMMA_test star_trailer 
 %type <node_type> testlist_comp trailer test term testlist xor_expr 
-%type <node_type> plus_STRING subscriptlist subscript opt_test_only opt_sliceop sliceop
+%type <node_type> plus_STRING subscriptlist subscript opt_test_only 
+%type <node_type> opt_sliceop sliceop
+%type <node_type> pick_NEWLINE_stmt decorated funcdef stmt simple_stmt
+%type <node_type> small_stmt flow_stmt return_stmt compound_stmt suite 
+%type <node_type> plus_stmt 
 
-%type <operator_type> pick_PLUS_MINUS pick_multop pick_unop augassign
+%type <operator_type> pick_PLUS_MINUS pick_multop pick_unop augassign comp_op
 
 %start start
 %locations
@@ -70,7 +77,16 @@ file_input // Used in: start
     ;
 pick_NEWLINE_stmt // Used in: star_NEWLINE_stmt
     : NEWLINE
+    {
+      $$ = new PrintNode(0);
+      pool.add($$);
+    }
     | stmt
+    {
+      if ($1) {
+        $1->eval();
+      }
+    }
     ;
 star_NEWLINE_stmt // Used in: file_input, star_NEWLINE_stmt
     : star_NEWLINE_stmt pick_NEWLINE_stmt
@@ -92,10 +108,17 @@ decorators // Used in: decorators, decorated
     ;
 decorated // Used in: compound_stmt
     : decorators classdef
+    { $$ = nullptr;}
     | decorators funcdef
+    { $$ = nullptr;}
     ;
 funcdef // Used in: decorated, compound_stmt
     : DEF NAME parameters COLON suite   
+    {
+      $$ = new FunctionNode($2, $5);
+      pool.add($$);
+      delete[] $2;
+    }
     ;
 parameters // Used in: funcdef
     : LPAR varargslist RPAR     
@@ -146,11 +169,15 @@ star_fpdef_notest // Used in: fplist, star_fpdef_notest
     ;
 stmt // Used in: pick_NEWLINE_stmt, plus_stmt
     : simple_stmt          
+    { $$ = $1; }
     | compound_stmt     
+    { $$ = $1; }
     ;
 simple_stmt // Used in: stmt, suite
     : small_stmt star_SEMI_small_stmt SEMI NEWLINE
+    { $$ = $1; }
     | small_stmt star_SEMI_small_stmt NEWLINE
+    { $$ = $1; }
     ;
 star_SEMI_small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
     : star_SEMI_small_stmt SEMI small_stmt
@@ -158,14 +185,23 @@ star_SEMI_small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
     ;
 small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
     : expr_stmt
+    { $$ = $1; }
     | print_stmt
+    { $$ = $1; }
     | del_stmt
+    { $$ = nullptr; }
     | pass_stmt
+    { $$ = nullptr; }
     | flow_stmt
+    { $$ = $1; }
     | import_stmt
+    { $$ = nullptr; }
     | global_stmt
+    { $$ = nullptr; }
     | exec_stmt
+    { $$ = nullptr; }
     | assert_stmt
+    { $$ = nullptr; }
     ;
 expr_stmt // Used in: small_stmt
     : testlist augassign pick_yield_expr_testlist 
@@ -290,13 +326,12 @@ augassign // Used in: expr_stmt
     ;
 print_stmt // Used in: small_stmt
     : PRINT opt_test    
-    { $$ = $2;
-      /* std::cerr << "type of $1 is  " << typeid($2).name() << std::endl; */
-      /* std::cerr << "type of $1 is  " << typeid($2->eval()).name() << std::endl; */
-      /* std::cerr << "value of $1 is  " << $2<< std::endl; */
-      /* std::cerr << "value of $1 is  " << $2->eval()<< std::endl; */
-      /* std::cerr << "In print_stmt value of $2 is  " << static_cast<const StringLiteral*>($2->eval())->get_val()<< std::endl; */
-      $2->eval()->print();
+    { 
+      if ($2) {
+        $$ = new PrintNode($2);
+        pool.add($$);
+      }
+    //   $2->eval()->print();
     }
     | PRINT RIGHTSHIFT test opt_test_2  
     { $$ = 0; }
@@ -330,10 +365,15 @@ pass_stmt // Used in: small_stmt
     ;
 flow_stmt // Used in: small_stmt
     : break_stmt
+    { $$ = nullptr;}
     | continue_stmt
+    { $$ = nullptr;}
     | return_stmt
+    { $$ = $1;}
     | raise_stmt
+    { $$ = nullptr;}
     | yield_stmt
+    { $$ = nullptr;}
     ;
 break_stmt // Used in: flow_stmt
     : BREAK
@@ -343,7 +383,15 @@ continue_stmt // Used in: flow_stmt
     ;
 return_stmt // Used in: flow_stmt
     : RETURN testlist
+    {
+      $$ = new ReturnNode($2);
+      pool.add($$);
+    }
     | RETURN
+    {
+      $$ = new ReturnNode(nullptr);
+      pool.add($$);
+    }
     ;
 yield_stmt // Used in: flow_stmt
     : yield_expr
@@ -429,13 +477,21 @@ assert_stmt // Used in: small_stmt
     ;
 compound_stmt // Used in: stmt
     : if_stmt           
+    { $$ = nullptr;}
     | while_stmt        
+    { $$ = nullptr;}
     | for_stmt          
+    { $$ = nullptr;}
     | try_stmt
+    { $$ = nullptr;}
     | with_stmt
+    { $$ = nullptr;}
     | funcdef
+    { $$ = $1;}
     | classdef
+    { $$ = nullptr;}
     | decorated
+    { $$ = $1;}
     ;
 if_stmt // Used in: compound_stmt
     : IF test COLON suite star_ELIF ELSE COLON suite  
@@ -495,11 +551,22 @@ opt_AS_COMMA // Used in: except_clause
 suite // Used in: funcdef, if_stmt, star_ELIF, while_stmt, for_stmt, 
       //try_stmt, plus_except, opt_ELSE, opt_FINALLY, with_stmt, classdef
     : simple_stmt             
+    { $$ = $1;}
     | NEWLINE INDENT plus_stmt DEDENT   
+    { $$ = $3;}
     ;
 plus_stmt // Used in: suite, plus_stmt
     : plus_stmt stmt        
+    {
+      $$ = $1;
+      dynamic_cast<SuiteNode*>($$)->set_suite_stmts($2);
+    }
     | stmt                  
+    {
+      $$ = new SuiteNode();
+      dynamic_cast<SuiteNode*>($$)->set_suite_stmts($1);
+      pool.add($$);
+    }
     ;
 testlist_safe // Used in: list_for
     : old_test plus_COMMA_old_test opt_COMMA
@@ -555,20 +622,58 @@ comparison // Used in: not_test, comparison
     : expr      
     { $$ = $1; }
     | comparison comp_op expr 
-    { $$ = 0; }
+    {
+      switch($2) {
+        case '1': {
+          $$ = new LessBinaryNode($1, $3);
+          pool.add($$);
+        }
+        case '2': {
+          $$ = new GreaterBinaryNode($1, $3);
+          pool.add($$);
+        }
+        case '3': {
+          $$ = new EqualEqualBinaryNode($1, $3);
+          pool.add($$);
+        }
+        case '4': {
+          $$ = new GreaterEqualBinaryNode($1, $3);
+          pool.add($$);
+        }
+        case '5': {
+          $$ = new LessEqualBinaryNode($1, $3);
+          pool.add($$);
+        }
+        case '6': {
+          $$ = new NotEqualBinaryNode($1, $3);
+          pool.add($$);
+        }
+      }
+    }
     ;
 comp_op // Used in: comparison
     : LESS
+    { $$ = '1';}
     | GREATER
+    { $$ = '2';}
     | EQEQUAL
+    { $$ = '3';}
     | GREATEREQUAL
+    { $$ = '4';}
     | LESSEQUAL
+    { $$ = '5';}
     | GRLT
+    { $$ = 0;}
     | NOTEQUAL
+    { $$ = '6';}
     | IN
+    { $$ = 0;}
     | NOT IN
+    { $$ = 0;}
     | IS
+    { $$ = 0;}
     | IS NOT
+    { $$ = 0;}
     ;
 expr // Used in: exec_stmt, with_item, comparison, expr, exprlist, star_COMMA_expr
     : xor_expr  
@@ -709,16 +814,24 @@ power // Used in: factor
       }
     }
     | atom star_trailer     
-    { if ($2) {
+    {
+    //   std::cerr << "in atom star_trailer " << bracket_type << std::endl;
+    //if ($2) {
+      if ($2 && "LPAR" == bracket_type) {
+        // std::cerr << "in LPaR" << std::endl;
+        std::string func_name = reinterpret_cast<IdentifierNode*>($1)->get_identifier();
+        $$ = new CallNode(func_name);
+        pool.add($$);
+      } else if ($2 && "LSQB" == bracket_type) {
         /* std::cerr << "the 2nd time " << slice_str <<std::endl; */
         /* here $1 is IndentNode,$1->eval() is const Literal *. */
         std::string original_str = static_cast<const StringLiteral*>($1->eval())->get_val();
         org_str_len = original_str.length();
         
         if (INT_MAX == slice_right) {
-          slice_right = org_str_len;
+        slice_right = org_str_len;
         }
-         
+        
         std::string t("");
         int sub_str_len;
         int slice_minus;
@@ -726,60 +839,27 @@ power // Used in: factor
         /* std::cerr << "slice_right is " << slice_right <<std::endl; */
         /* std::cerr << "org_str_len is " << org_str_len <<std::endl; */
         if (0 == slice_right) {
-          if (-org_str_len <= slice_left && slice_left<=-1) {
+        if (-org_str_len <= slice_left && slice_left<=-1) {
             slice_minus = slice_left + org_str_len;
             t = original_str[slice_minus];
-          } else if (0 <= slice_left && slice_left<=(org_str_len-1)) {
+        } else if (0 <= slice_left && slice_left<=(org_str_len-1)) {
             t = original_str[slice_left];
-          } else {
-           std::cout << "IndexError: string index out of range" << std::endl;
-           yyparse();
-           /* return 0; */
-           /* throw std::string("IndexError: string index out of range"); */
-          }
         } else {
-          if (slice_left < 0) {
+        std::cout << "IndexError: string index out of range" << std::endl;
+        yyparse();
+        /* return 0; */
+        /* throw std::string("IndexError: string index out of range"); */
+        }
+        } else {
+        if (slice_left < 0) {
             t = "";
-          } else {
+        } else {
             sub_str_len = slice_right - slice_left;
             t = original_str.substr(slice_left, sub_str_len);
-          }
+        }
         }
         $$ = new StringLiteral(t);
         pool.add($$);
-        /* std::cerr << "original_str length is " << org_str_len <<std::endl; */
-        /* std::cerr << "original string is " << orginal_str <<std::endl; */
-        /* for (unsigned int i = 1; i <s.size()-1; ++i) { */
-        /*   t = t + s[i]; */
-        /* } */
-        /* int slice_left = static_cast<IntLiteral*>$2->get_val(); */
-        /* std::cerr << "slice_left  in power is " << slice_left <<std::endl; */
-        /* std::cerr <<"t value is " << t <<std::endl; */
-        /* $$ = new StringNode(t); */
-        /* delete[] $1; */
-        /* delete[] $2; */
-        /* std::cerr << "atom star_trailer $1  " << static_cast<const StringLiteral*>($1->eval())->get_val() <<std::endl; */
-        /* std::cerr << "the 2nd time " << slice_str[$] <<std::endl; */
-        /* std::cerr << "atom star_trailer $1" << $1->eval()->val <<std::endl; */
-        /* std::cerr << "atom star_trailer $1  " << static_cast<StringNode*>($1) <<std::endl; */
-        /* std::cerr << "atom star_trailer $1  " << static_cast<StringLiteral*>($1) <<std::endl; */
-        /* std::cerr << "atom star_trailer $1  " << static_cast<StringNode*>($1)->eval() <<std::endl; */
-        /* std::cerr << "atom star_trailer $1  " << static_cast<StringLiteral*>($1)->eval() <<std::endl; */ 
-        /* StringLiteral* strLit = new StringLiteral(""); */
-        /* strLit =  static_cast<IdentNode*>$1->eval(); */ 
-        /* strLit =  $1->eval(); */ 
-        /* std::cerr << "StringLiteral is " << strLit->get_val <<std::endl; */
-        /* std::cerr << "atom star_trailer $1  " << static_cast<StringLiteral*>static_cast<IdentNode*>$1->eval()->get_val <<std::endl; */
-        /* std::cerr << "atom star_trailer $1  " << static_cast<StringNode*>($1)->eval()->get_str_() <<std::endl; */
-        /* std::cerr << "atom star_trailer $1  " << static_cast<StringNode*>$1->get_str_() <<std::endl; */
-        /* std::cerr << "atom star_trailer $1  " << static_cast<StringLiteral*>$1->get_val() <<std::endl; */
-        /* std::cerr << "atom star_trailer $1  " << dynamic_cast<StringNode*>($1)->get_str_() <<std::endl; */
-        /* std::cerr << "atom star_trailer $2  " << $2 <<std::endl; */
-        /* std::cerr << "atom star_trailer " << *$1 <<std::endl; */
-        /* std::cerr << "type of $1 is  " << typeid($1).name() << std::endl; */
-        /* std::cerr << "type of $2 is  " << typeid($2).name() << std::endl; */
-        /* std::cerr << "subscript $2 is " << $2 <<std::endl; */
-        /* std::cerr << "subscript $2 is " << static_cast<IntLiteral*>$2->get_val() <<std::endl; */
       } else {
         // std::cerr << $1 << std::endl;
         $$ = $1;
@@ -802,7 +882,7 @@ atom // Used in: power
     | BACKQUOTE testlist1 BACKQUOTE 
     { $$ = 0; }
     | NAME  
-    { $$ = new IdentNode($1);
+    { $$ = new IdentifierNode($1);
       // std::cerr << $1 << std::endl; 
       delete[] $1;
       pool.add($$);
@@ -892,9 +972,15 @@ lambdef // Used in: test
     ;
 trailer // Used in: star_trailer
     : LPAR opt_arglist RPAR     
-    { $$ = $2; }
+    { 
+    //   $$ = $1;  //why can't use $$=$1 ?
+      bracket_type = "LPAR";
+    //   std::cerr << "LPAR is found " << bracket_type << std::endl;
+    }
     | LSQB subscriptlist RSQB   
-    { $$ = $2;
+    { 
+      $$ = $2;
+      bracket_type = "LSQB";
       /* std::cerr << "here" << std::endl; */ 
     }
     | DOT NAME  
