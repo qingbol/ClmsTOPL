@@ -69,7 +69,7 @@ pick_NEWLINE_stmt
 	{	
 		if($1) {
 		  std::string node_type = typeid($1).name();
-		  std::cerr << "node type is " << node_type << std::endl;
+		  // std::cerr << "node type is " << node_type << std::endl;
 		  $1->eval();
 		  // std::cerr << "$1 is " << $1->eval()->isTrue() << std::endl;
 		}

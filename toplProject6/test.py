@@ -10,7 +10,8 @@ def testCode( retcode, msg ):
         print msg
         sys.exit( 1 )
 
-testDir = os.path.join( os.getcwd(), 'cases')
+# testDir = os.path.join( os.getcwd(), 'cases')
+testDir = os.path.join( os.getcwd(), 'cases_old')
 if not os.path.isdir( testDir ):
     print testDir, "isn't a directory"
     sys.exit( 1 )

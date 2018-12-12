@@ -1,6 +1,7 @@
 def g():
-  x=3
+  x=2
   if x==1:
+    # x=5
     print 1
   elif x==2:
     print 2

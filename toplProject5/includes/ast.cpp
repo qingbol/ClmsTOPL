@@ -139,7 +139,7 @@ AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) :
   BinaryNode(left, right) { 
   // const Literal* res = right->eval();
   // const std::string n = static_cast<IdentifierNode*>(left)->get_identifier();
-  // SymbolTable::GetInstance().setValue(n, res);
+  // ScopeManager::GetInstance().set_variable(n, res);
   //std::cout<<" right eval in the node is "<<std::endl;
   //right->eval()->print();
   //std::cout<<"value has been assigned";

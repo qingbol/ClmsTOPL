@@ -1932,9 +1932,9 @@ yyreduce:
     {	
 		if((yyvsp[0].node)) {
 		  std::string node_type = typeid((yyvsp[0].node)).name();
-		  std::cerr << "node type is " << node_type << std::endl;
-			// $1->eval();
-			// std::cerr << "$1 is " << $1->eval()->isTrue() << std::endl;
+		  // std::cerr << "node type is " << node_type << std::endl;
+		  (yyvsp[0].node)->eval();
+		  // std::cerr << "$1 is " << $1->eval()->isTrue() << std::endl;
 		}
 		else{
 		}

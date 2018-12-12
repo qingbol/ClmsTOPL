@@ -59,7 +59,7 @@ const Literal* IfNode::eval() const{
 
   if(lit->isTrue())
   {
-    std::cerr << "in ifnode"<<std::endl;
+    // std::cerr << "in ifnode"<<std::endl;
     ifSuite->eval();
   }
   // else if(elifSuite)

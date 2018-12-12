@@ -343,10 +343,10 @@ class FloatLiteral: public Literal {
   virtual int get_value() const { return (int)(this->val);}
   virtual void print() const { 
     if(fmod(val,1) == 0){
-      std::cout << "double: " << std::setprecision(17) << val << ".0" << std::endl;
+      std::cout << "FLOAT: " << std::setprecision(17) << val << ".0" << std::endl;
     }
     else{
-      std::cout << "double: " << std::setprecision(17) << val << std::endl;
+      std::cout << "FLOAT: " << std::setprecision(17) << val << std::endl;
     }
   }
  private:
@@ -540,6 +540,7 @@ public:
  IntLiteral(int _val): val(_val) {}
 
   virtual const Literal* operator+(const Literal& rhs) const  {
+    // std::cerr << "entering literal.h operator+" << std::endl;
     return rhs.opPlus(val);
   }
   virtual const Literal* opPlus(double lhs) const  {

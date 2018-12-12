@@ -1,8 +1,10 @@
 def g():
-  x = 1
-  if x == 1: 
+  x=1
+  if x==1: 
+    x=17
+    # x+=17
     print 77
-    x = 17
+    print 87
     if x: 
       print 1
     else: 

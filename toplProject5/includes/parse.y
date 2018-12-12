@@ -206,58 +206,68 @@ small_stmt // Used in: simple_stmt, star_SEMI_small_stmt
 expr_stmt // Used in: small_stmt
     : testlist augassign pick_yield_expr_testlist 
     { if($1 && $3) {
+        // std::cerr << "expr_stmt $1/$3 is true" << std::endl;
         switch ($2) {
           case '0': {
+            // std::cerr << "expr_stmt $1/$3 is true, case '0'" << std::endl;
             Node* temp = new AddBinaryNode($1,$3);
-            $1 = new AsgBinaryNode($1,temp);
-            pool.add($1);
+            // $1 = new AsgBinaryNode($1,temp);
+            // pool.add($1);
+            $$ = new AsgBinaryNode($1,temp);
+            pool.add($$);
             delete temp;
             //($$)->eval()->print();
             break;
           }
           case '1': {
             Node* temp = new SubBinaryNode($1,$3);
-            $1 = new AsgBinaryNode($1,temp);
-            pool.add($1);
+            // $1 = new AsgBinaryNode($1,temp);
+            $$ = new AsgBinaryNode($1,temp);
+            pool.add($$);
             delete temp;
             //($$)->eval()->print();
             break;                  
           }
           case '2': {
             Node* temp = new MulBinaryNode($1,$3);
-            $1 = new AsgBinaryNode($1,temp);
-            pool.add($1);
+            // $1 = new AsgBinaryNode($1,temp);
+            $$ = new AsgBinaryNode($1,temp);
+            pool.add($$);
             delete temp;
             //($$)->eval()->print();
             break; 
             }
           case '3': {
             Node* temp = new DivBinaryNode($1,$3);
-            $1 = new AsgBinaryNode($1,temp);
-            pool.add($1);
+            // $1 = new AsgBinaryNode($1,temp);
+            $$ = new AsgBinaryNode($1,temp);
+            pool.add($$);
             delete temp;
             //($$)->eval()->print();
             break; 
           }
           case '4': {
             Node* temp = new PctBinaryNode($1,$3);
-            $1 = new AsgBinaryNode($1,temp);
-            pool.add($1);
+            // $1 = new AsgBinaryNode($1,temp);
+            $$ = new AsgBinaryNode($1,temp);
+            pool.add($$);
             delete temp;
             //($$)->eval()->print();
             break; 
           }
           case 11: {
             Node* temp = new DbStarBinaryNode($1,$3);
-            $1 = new AsgBinaryNode($1, temp);
-            pool.add($1);
+            // $1 = new AsgBinaryNode($1, temp);
+            $$ = new AsgBinaryNode($1, temp);
+            pool.add($$);
             delete temp;
             break;
           }
           case 12: {
             Node* temp = new DbSlashBinaryNode($1,$3);
-            $1 = new AsgBinaryNode($1, temp);
-            pool.add($1);
+            // $1 = new AsgBinaryNode($1, temp);
+            $$ = new AsgBinaryNode($1, temp);
+            pool.add($$);
             delete temp;
             break;               
           }

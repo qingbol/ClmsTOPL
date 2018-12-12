@@ -304,6 +304,7 @@ public:
  IntLiteral(int _val): val(_val) {}
 
   virtual const Literal* operator+(const Literal& rhs) const  {
+    // std::cerr << "entering literal.h operator+" << std::endl;
     return rhs.opPlus(val);
   }
   virtual const Literal* opPlus(double lhs) const  {
