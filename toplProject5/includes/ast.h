@@ -32,8 +32,7 @@ class IdentifierNode : public Node {
  public:
   IdentifierNode(const std::string id) : Node(), identifier_(id) { } 
   virtual ~IdentifierNode() {}
-  // const std::string get_identifier() const { return identifier_; }
-  virtual const std::string getIdent() const { return identifier_; }
+  const std::string get_identifier() const { return identifier_; }
   virtual const Literal* eval() const;
  private:
   std::string identifier_;
@@ -41,19 +40,15 @@ class IdentifierNode : public Node {
 
 class FunctionNode : public Node {
  public:
-  FunctionNode(const std::string id, Node* para, Node* stmts) 
-      : Node(), function_name_(id),
-        function_parameter_(para),
-        function_body_(stmts) {}
+  FunctionNode(const std::string id, Node* stmts) 
+      : Node(), function_name_(id), function_body_(stmts) {}
   FunctionNode(const FunctionNode&) = delete;
   FunctionNode& operator=(const FunctionNode&) = delete;
   virtual ~FunctionNode() {}
   const std::string get_function_name() const {return function_name_;}
-  virtual const std::string getIdent() const { return function_name_; }
   virtual const Literal* eval() const;
  private:
   std::string function_name_;
-  Node* function_parameter_;
   Node* function_body_;
 };
  
@@ -69,8 +64,7 @@ class SuiteNode : public Node {
 
 class CallNode : public Node {
  public:
-  CallNode(const std::string id, Node* argument) 
-      : Node(), identifier_(id), arguments(argument) {}
+  CallNode(const std::string id) : Node(), identifier_(id) {}
   virtual const Literal* eval() const;
   virtual ~CallNode() {}
   const std::string get_identifier() const {
@@ -78,7 +72,6 @@ class CallNode : public Node {
   }
  private:
   std::string identifier_;
-  Node* arguments;
 };
 
 class ReturnNode : public Node {
@@ -137,36 +130,6 @@ class ElifVectorNode : public Node {
   std::vector<Node*> elif_vector_;
 };
 
-////Parameter node
-class ParameterNode : public Node {
- public:
-  ParameterNode() : Node(), parameter_vector_() {}
-  void InsertParameter(Node* node);
-  void InsertParameterToFront(Node* node);
-  void arg_eval(Node* node) const;
-  virtual const Literal* eval() const;
-  ParameterNode(const ParameterNode&) = delete;
-  ParameterNode& operator=(const ParameterNode&) = delete;
- private:
-  std::vector<Node*> parameter_vector_;
-}; 
-
-//ArgumentNode========
-class ArgumentNode : public Node {
- public:
-  ArgumentNode() : Node(), argument_vector_() {}
-  void InsertArgument(Node* node);
-  void InsertArgumentVector(Node* node);
-  virtual const Literal* eval() const;
-  std::vector<Node*> get_argument_vector() const {
-    return argument_vector_;
-  }
-  ArgumentNode(const ArgumentNode&) = delete;
-  ArgumentNode& operator=(const ArgumentNode&) = delete;
- private:
-  std::vector<Node*> argument_vector_;
-};
-
 
 class StringNode : public Node {
 public:
@@ -197,7 +160,6 @@ class AsgBinaryNode : public BinaryNode {
 public:
   AsgBinaryNode(Node* left, Node* right);
   virtual const Literal* eval() const;
-  virtual const std::string getIdent() const;
 };
 
 class AddBinaryNode : public BinaryNode {

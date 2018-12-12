@@ -1,4 +1,4 @@
-#include <iostream>
+// #include <iostream>
 #include <typeinfo>
 #include <sstream>
 #include <cmath>
@@ -15,7 +15,6 @@ const Literal* PrintNode::eval() const{
 
 const Literal* FunctionNode::eval() const {
   ScopeManager::GetInstance().set_function(function_name_, function_body_);
-  ScopeManager::GetInstance().set_parameter(function_name_, function_parameter_);
   return nullptr;
 }
 
@@ -42,24 +41,15 @@ const Literal* SuiteNode::eval() const {
 }
 
 const Literal* CallNode::eval() const {
-  // std::cout << "function>>" << identifier_ << "<<in CallNOde::eval()" << std::endl;
   ScopeManager& sm = ScopeManager::GetInstance();
   if (!sm.CheckFunction(identifier_)) {
-    std::cout << "function" << identifier_ << "Not found" << std::endl;
     std::exception up = std::exception();
     throw up;
   }
-  sm.PushScope(identifier_);
-  // sm.PushScope();
-  if (sm.get_parameter(identifier_)) {
-    // std::cout << "function>>" << identifier_ << "<<in CallNOde::eval()" << std::endl;
-    dynamic_cast<const ParameterNode*>(sm.get_parameter(identifier_))->arg_eval(arguments);
-    // dynamic_cast<const ParameterNode*>(sm.get_parameter(identifier_))->arg_eval(parameter_vector_);
-  }
-  const Literal* res = sm.get_function(identifier_)->eval();
+  sm.PushScope();
+  sm.get_function(identifier_)->eval();
   sm.PopScope();
-  // return nullptr;
-  return res;
+  return nullptr;
 }
  
 const Literal* ReturnNode::eval() const {
@@ -70,7 +60,7 @@ const Literal* ReturnNode::eval() const {
     return 0;
   }
   const Literal* res = return_node_->eval();
-  // res->print();
+  res->print();
   ScopeManager::GetInstance().set_variable(return_name_, res);
   return res;
 }
@@ -133,70 +123,6 @@ const Literal* ElifVectorNode::eval() const {
   }
 }
 
-////ParameterNode InsertParameterNode
-void ParameterNode::InsertParameter(Node* node) {
-  parameter_vector_.push_back(node);
-}
-////ParameterNode InsertParameterToFront
-void ParameterNode::InsertParameterToFront(Node* node) {
-  parameter_vector_.insert(parameter_vector_.begin(), node);
-}
-////ParameterNode eval
-const Literal* ParameterNode::eval() const {
-  for (Node* n : parameter_vector_) {
-    const std::string str 
-        = static_cast<IdentifierNode*>(n)->getIdent();
-        // = static_cast<IdentifierNode*>(n)->get_identifier();
-    // std::cerr << "parameter list in ParameterNode " << str << std::endl;
-  }
-  return 0;
-}
-////ParameterNode arg_eval
-void ParameterNode::arg_eval(Node* node) const {
-  std::vector<Node*> arg = dynamic_cast<const ArgumentNode*>(node)->get_argument_vector();
-  // std::cerr << "arg_eval()" <<std::endl;
-  std::vector<Node*>::const_iterator arg_iter = arg.begin();
-  std::vector<Node*>::const_iterator par_iter = parameter_vector_.begin();
-      // std::cerr << "arg_eval()" <<std::endl;
-
-  while(par_iter != parameter_vector_.end()) {
-    if (arg_iter != arg.end()) {
-      // std::cerr << "arg_eval()" <<std::endl;
-      const std::string parameter_val = (*par_iter)->getIdent();
-      // std::cerr << "parameter_val is " << parameter_val << std::endl;
-      // const std::string parameter_val = (*par_iter)->get_identifier();
-      const Literal* argument_val = (*arg_iter)->eval();
-      // std::cerr << "argument_val is " << argument_val->get_value() << std::endl;
-      ScopeManager::GetInstance().set_variable(parameter_val, argument_val);
-      arg_iter++;
-    } else {
-      // std::cerr << "arg_eval()" <<std::endl;
-      (*par_iter)->eval();
-    }
-    par_iter++;
-  }
-}
-
-////ArgumentNode eval()
-const Literal* ArgumentNode::eval() const {
-  std::vector<Node*>::const_iterator iter= argument_vector_.begin();
-  while (iter != argument_vector_.end()) {
-    (*iter)->eval();
-    iter++;
-  }
-  return 0;
-}
-////ArgumentNode InsertArgument
-void ArgumentNode::InsertArgument(Node* node) {
-  argument_vector_.push_back(node);
-}
-////ArgumentNode InsertArgumentVector
-void ArgumentNode::InsertArgumentVector(Node* node) {
-  std::vector<Node*> v;
-  v = dynamic_cast<ArgumentNode*>(node)->get_argument_vector();
-  argument_vector_.insert(argument_vector_.end(), v.begin(), v.end());
-}
-
 const Literal* StringNode::eval() const { 
   const Literal* val;
   try{
@@ -218,18 +144,13 @@ AsgBinaryNode::AsgBinaryNode(Node* left, Node* right) :
   //right->eval()->print();
   //std::cout<<"value has been assigned";
 }
-const std::string AsgBinaryNode::getIdent() const {
-  const std::string name = static_cast<IdentifierNode*>(left)->getIdent();
-  return name;
-}
 
 const Literal* AsgBinaryNode::eval() const { 
   if (!left || !right) {
     throw "error";
   }
   const Literal* res = right->eval();
-  // const std::string n = static_cast<IdentifierNode*>(left)->get_identifier();
-  const std::string n = static_cast<IdentifierNode*>(left)->getIdent();
+  const std::string n = static_cast<IdentifierNode*>(left)->get_identifier();
   ScopeManager::GetInstance().set_variable(n, res);
   //std::cout<<" right eval in eval() "<<std::endl;
   //right->eval()->print();

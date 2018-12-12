@@ -578,11 +578,11 @@ funcdef <node_type> (97)
     on left: 15, on right: 14 130
 parameters <node_type> (98)
     on left: 16 17, on right: 15
-varargslist <node_type> (99)
+varargslist (99)
     on left: 18 19, on right: 16 170 246
-opt_EQUAL_test <node_type> (100)
+opt_EQUAL_test (100)
     on left: 20 21, on right: 19 22
-star_fpdef_COMMA <node_type> (101)
+star_fpdef_COMMA (101)
     on left: 22 23, on right: 18 19 22
 opt_DOUBLESTAR_NAME (102)
     on left: 24 25, on right: 26
@@ -590,11 +590,11 @@ pick_STAR_DOUBLESTAR (103)
     on left: 26 27, on right: 18
 opt_COMMA (104)
     on left: 28 29, on right: 19 73 77 164 243 245 275 277 289
-fpdef <node_type> (105)
+fpdef (105)
     on left: 30 31, on right: 19 22 32 33 34
-fplist <node_type> (106)
+fplist (106)
     on left: 32 33, on right: 31
-star_fpdef_notest <node_type> (107)
+star_fpdef_notest (107)
     on left: 34 35, on right: 32 33 34
 stmt <node_type> (108)
     on left: 36 37, on right: 4 162 163
@@ -811,7 +811,7 @@ opt_testlist (211)
     on left: 280 281, on right: 278
 arglist <node_type> (212)
     on left: 282, on right: 9
-star_argument_COMMA <node_type> (213)
+star_argument_COMMA (213)
     on left: 283 284, on right: 282 283
 star_COMMA_argument (214)
     on left: 285 286, on right: 285 290
