@@ -11,7 +11,6 @@ def testCode( retcode, msg ):
         sys.exit( 1 )
 
 testDir = os.path.join( os.getcwd(), 'cases')
-# testDir = os.path.join( os.getcwd(), 'cases_old')
 if not os.path.isdir( testDir ):
     print testDir, "isn't a directory"
     sys.exit( 1 )
@@ -84,7 +83,7 @@ for x in files:
                         # So, I need to transfer this value into float first 
                         # and then transfer the value into a string for comparing.
                         value1 = str(float(value1))
-                        # print "value1 is ", value1                    
+                    
                     len1 = len(value1)
                     len2 = len(value2)
                     len_min = min(len1, len2)
@@ -111,7 +110,6 @@ for x in files:
                                     # no possible carry
                                     iSuc = False
                                 else :
-                                    # print i, "line in ",x , "|| ./run value is ", value1, "||python value is ", value2
                                     if value1[pos + 1] >= '5' and  value2[pos] - value1[pos] == 1 :
                                         # the carry made the answer
                                         iSuc = True

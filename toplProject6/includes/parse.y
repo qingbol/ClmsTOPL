@@ -50,10 +50,10 @@
 %token <str_type> STRING COLON 
 // %type <str_type> STRING
 
-%type <node_type> and_expr and_test arglist argument arith_expr atom 
+%type <node_type> and_expr and_test argument arith_expr atom 
 %type <node_type> comparison expr expr_stmt factor not_test 
 %type <node_type> opt_IF_ELSE opt_arglist opt_test opt_yield_test or_test 
-%type <node_type> parameters power pick_yield_expr_testlist pick_argument 
+%type <node_type> power pick_yield_expr_testlist pick_argument 
 %type <node_type> pick_yield_expr_testlist_comp print_stmt 
 %type <node_type> star_EQUAL shift_expr star_COMMA_test star_trailer 
 %type <node_type> testlist_comp trailer test term testlist xor_expr 
@@ -62,6 +62,8 @@
 %type <node_type> pick_NEWLINE_stmt decorated funcdef stmt simple_stmt
 %type <node_type> small_stmt flow_stmt return_stmt compound_stmt suite 
 %type <node_type> plus_stmt if_stmt star_ELIF 
+%type <node_type> parameters varargslist opt_EQUAL_test star_fpdef_COMMA
+%type <node_type> fpdef fplist star_fpdef_notest arglist star_argument_COMMA
 
 %type <operator_type> pick_PLUS_MINUS pick_multop pick_unop augassign comp_op
 
@@ -115,28 +117,64 @@ decorated // Used in: compound_stmt
 funcdef // Used in: decorated, compound_stmt
     : DEF NAME parameters COLON suite   
     {
-      $$ = new FunctionNode($2, $5);
+    //   $3->eval();
+    //   dynamic_cast<ParameterNode*>($3)->eval();
+      $$ = new FunctionNode($2, $3, $5);
       pool.add($$);
       delete[] $2;
     }
     ;
 parameters // Used in: funcdef
     : LPAR varargslist RPAR     
-    { $$ = 0; }
+    { $$ = $2; }
     | LPAR RPAR     
     { $$ = 0; }
     ;
 varargslist // Used in: parameters, old_lambdef, lambdef
     : star_fpdef_COMMA pick_STAR_DOUBLESTAR
+    { $$ = $1; }
     | star_fpdef_COMMA fpdef opt_EQUAL_test opt_COMMA
+    {
+    //   if ($3) {
+    //     Node* temp = new AsgBinaryNode($2, $3);
+    //     $2 = temp;
+    //     pool.add(temp);
+    //   }
+      if ($1) {
+        dynamic_cast<ParameterNode*>($1)->InsertParameter($2); 
+        $$ = $1;
+      } else {
+        $$ = new ParameterNode();
+        dynamic_cast<ParameterNode*>($$)->InsertParameter($2);
+        pool.add($$);
+      }
+    }
     ;
 opt_EQUAL_test // Used in: varargslist, star_fpdef_COMMA
     : EQUAL test
+    { $$ = $2; }
     | %empty
+    { $$ = nullptr; }
     ;
 star_fpdef_COMMA // Used in: varargslist, star_fpdef_COMMA
     : star_fpdef_COMMA fpdef opt_EQUAL_test COMMA
+    {
+      if ($3) {
+        Node* temp = new AsgBinaryNode($2, $3);
+        $2 = temp;
+        pool.add(temp);
+      }
+      if ($1) {
+        dynamic_cast<ParameterNode*>($1)->InsertParameter($2);
+        $$ = $1;
+      } else {
+        $$ = new ParameterNode();
+        dynamic_cast<ParameterNode*>($$)->InsertParameter($2);
+        // $$ = $1;
+      }
+    }
     | %empty
+    { $$ = nullptr; }
     ;
 opt_DOUBLESTAR_NAME // Used in: pick_STAR_DOUBLESTAR
     : COMMA DOUBLESTAR NAME     
@@ -156,16 +194,52 @@ opt_COMMA // Used in: varargslist, opt_test, opt_test_2, testlist_safe,listmaker
     ;
 fpdef // Used in: varargslist, star_fpdef_COMMA, fplist, star_fpdef_notest
     : NAME  
-    { delete[] $1; }
+    {
+      $$ = new IdentifierNode($1);
+      pool.add($$);
+      delete[] $1;
+    }
     | LPAR fplist RPAR
+    { $$ = $2; }
     ;
 fplist // Used in: fpdef
     : fpdef star_fpdef_notest COMMA
+    {
+      if ($2) {
+        dynamic_cast<ParameterNode*>($2)->InsertParameterToFront($1);
+        $$ = $2;
+      } else {
+        $$ = new ParameterNode();
+        dynamic_cast<ParameterNode*>($$)->InsertParameter($1);
+        pool.add($$);
+      }
+    }
     | fpdef star_fpdef_notest
+    {
+      if ($2) {
+        dynamic_cast<ParameterNode*>($2)->InsertParameterToFront($1);
+        $$ = $2;
+      } else {
+        $$ = new ParameterNode();
+        dynamic_cast<ParameterNode*>($$)->InsertParameter($1);
+        pool.add($$);
+      }
+    }
     ;
 star_fpdef_notest // Used in: fplist, star_fpdef_notest
     : star_fpdef_notest COMMA fpdef
+    {
+      if ($1) {
+        dynamic_cast<ParameterNode*>($1)->InsertParameter($3);
+        $$ = $1;
+      } else {
+        $$ = new ParameterNode();
+        dynamic_cast<ParameterNode*>($$)->InsertParameter($3);
+        pool.add($$);
+      }
+    }
     | %empty
+    { $$ = nullptr; }
     ;
 stmt // Used in: pick_NEWLINE_stmt, plus_stmt
     : simple_stmt          
@@ -214,6 +288,7 @@ expr_stmt // Used in: small_stmt
             // $1 = new AsgBinaryNode($1,temp);
             // pool.add($1);
             $$ = new AsgBinaryNode($1,temp);
+            // $$=$1;
             pool.add($$);
             delete temp;
             //($$)->eval()->print();
@@ -866,8 +941,9 @@ power // Used in: factor
     //if ($2) {
       if ($2 && "LPAR" == bracket_type) {
         // std::cerr << "in LPaR" << std::endl;
-        std::string func_name = reinterpret_cast<IdentifierNode*>($1)->get_identifier();
-        $$ = new CallNode(func_name);
+        // std::string func_name = reinterpret_cast<IdentifierNode*>($1)->get_identifier();
+        std::string func_name = reinterpret_cast<IdentifierNode*>($1)->getIdent();
+        $$ = new CallNode(func_name, $2);
         pool.add($$);
       } else if ($2 && "LSQB" == bracket_type) {
         /* std::cerr << "the 2nd time " << slice_str <<std::endl; */
@@ -1027,6 +1103,12 @@ trailer // Used in: star_trailer
     //   $$ = $1;  //why can't use $$=$1 ?
       bracket_type = "LPAR";
     //   std::cerr << "LPAR is found " << bracket_type << std::endl;
+      if ($2) {
+        $$ = $2;
+      } else {
+        $$ = new ArgumentNode();
+        pool.add($$);
+      }
     }
     | LSQB subscriptlist RSQB   
     { 
@@ -1142,11 +1224,29 @@ opt_testlist // Used in: classdef
     ;
 arglist // Used in: opt_arglist
     : star_argument_COMMA pick_argument     
-    { $$ = $2; }
+    {
+      if ($1) {
+        dynamic_cast<ArgumentNode*>($1)->InsertArgumentVector($2);
+        $$ = $1;
+      } else {
+        $$ = $2;
+      }
+    }
     ;
 star_argument_COMMA // Used in: arglist, star_argument_COMMA
     : star_argument_COMMA argument COMMA
+    {
+      if ($1) {
+        dynamic_cast<ArgumentNode*>($1)->InsertArgument($2);
+        $$ = $1;
+      } else {
+        $$ = new ArgumentNode();
+        dynamic_cast<ArgumentNode*>($$)->InsertArgument($2);
+        pool.add($$);
+      }
+    }
     | %empty
+    { $$ = nullptr; }
     ;
 star_COMMA_argument // Used in: star_COMMA_argument, pick_argument
     : star_COMMA_argument COMMA argument
@@ -1158,7 +1258,11 @@ opt_DOUBLESTAR_test // Used in: pick_argument
     ;
 pick_argument // Used in: arglist
     : argument opt_COMMA    
-    { $$ = $1; }
+    {
+      $$ = new ArgumentNode();
+      dynamic_cast<ArgumentNode*>($$)->InsertArgument($1);
+      pool.add($$);
+    }
     | STAR test star_COMMA_argument opt_DOUBLESTAR_test     
     { $$ = 0; }
     | DOUBLESTAR test   
@@ -1168,6 +1272,10 @@ argument // Used in: star_argument_COMMA, star_COMMA_argument, pick_argument
     : test opt_comp_for     
     { $$ = $1; }
     | test EQUAL test
+    {
+      $$ = new AsgBinaryNode($1, $3);
+      pool.add($$);
+    }
     ;
 opt_comp_for // Used in: argument
     : comp_for
