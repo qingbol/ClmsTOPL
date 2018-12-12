@@ -11,5 +11,8 @@ public:
   virtual void print() const { 
     std::cout << "NODE" << std::endl; 
   }
+  virtual const std::string getIdent() const {
+    return 0;
+  }
 };
 
