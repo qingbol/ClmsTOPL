@@ -1,0 +1,34 @@
+Name:Qingbo Lai
+
+Course no: CpSc 8270
+
+Clemson Email Address: qingbol@clemson.edu 
+
+Project no:5
+
+Project due date: 8AM, Friday, Dec 7, 2018
+
+Project description:
+(1)In this project my solution can translate Python functions, including scope resolution and return value.
+(2)In addition, the solution can also translate if/else, and one elif.
+some important class:
+
+*TableManager : 
+it have three member datas: a vector for Symboltable and a vector for FunctionTable and a int variable "currentScope"
+Make the TableManager singleton pattern , which can check whether the functionname in the currentscope functiontable and whether variable name in the currentscope.
+*FunctionTable Node: 
+Each FuncNode include std::string for Function name and SuiteNode for every statements in the function.
+*ReturnNode : return value and break the current function.
+*CallNode : Create Scope and bind relative fuctionName and variable name to this scope.
+*If else : 
+set GreatBinaryNode, LessBinaryNode, NoteqBinaryNode, GreqBinaryNode, LesseqBinaryNode, EqeqBinaryNode for ">","<","!=",">=","<="
+Set IfNode to do logical action. if test is right, eval IfSuite, else eval elseSuite.
+
+The easiest part of this project:
+* Implement the if-else is much easier after function scope have established.
+
+Problems that I had in completing this project:
+*The elif can only handle one branch, no time to implement a recursive version.
+
+
+
