@@ -4,28 +4,33 @@ Course no: CpSc 8270
 
 Clemson Email Address: qingbol@clemson.edu 
 
-Project no:4
+Project no:6
 
-Project due date: 8AM, Friday, Nov 16, 2018
+Project due date: midnight, Wednesday, Dec 12, 2018
 
 Project description:
-*Design and implement AST to interpret some python code
-*Finished integer,float,string types.
-*Implemented basic arithmetic operation of values and variables and expressions 
-such as: {x + y, x − y, x ∗ y, x/y, x//y, x%y, x**e, (x), −x, +x}.
-*Implemented the following additional forms of assignment:
-{ x+ = y, x− = y, x∗ = y, x/ = y, x// = y, x% = y }.
-*Implemented string slicing.
-Use static_cast<const IntLiteral*>($1->eval())->get_val() to get the index value.
-Use static_cast<const StringLiteral*>($1->eval())->get_val() to get the string value.
-Then use substr function to implement the slicing in c++.
-*I designed and passed 349 test cases including the above operation.
+This project implemented the following translation.
+(1)Project4: handle integer,float, string(including slicing), variable, PRINT, 
+             assignment, expressions(such as x+y, x-y, x*y, x/y, x//y, x%y,
+             x**y, (x), -x, +x, booleans).
+(2)Project5: handle functions(including scope resolution, return), if/elif/else.
+             handle relational operation(such as <, <=, ==, >, >=, !=).
+(3)project6: handle function parameter(actual and formal), pass by value.
+             handle function recursion.
+
+The cases directory contains 31 .py files which have 366 usecases.
+
+some new important class:
+In order to handle function parameter, I added two new Nodes: ParameterNode and 
+ArgumentNode. 
 
 The easiest part of this project:
-* Implement the plus and multiply operation in  int and float type 
+* Design test cases is the easier part, 
+but debug the codes to get the test cases run properly is difficult.
 
 Problems that I had in completing this project:
-*It took me a lot time to figure out how to implement the string slicing.
-* The grammar in parse.y is too complecated to totally understand.
+*It took me a lot time to bind the parameter and argument together,
+ it's a tricky part.
+
 
 
